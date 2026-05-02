@@ -1,8 +1,6 @@
 // wtf/main.swift
 import Foundation
 
-// These are in the same module, so no explicit import needed
-
 let args = CommandLine.arguments.dropFirst()
 
 guard !args.isEmpty else {
@@ -24,7 +22,7 @@ do {
 
     var status: Int32 = 0
     waitpid(buildPID, &status, 0)
-    let exitCode = Int32((status >> 8) & 0xff)
+    let exitCode = (status >> 8) & 0xff
     print("wtf: build completed with exit code \(exitCode)")
 
 } catch {
