@@ -7,14 +7,17 @@ struct ProcessBoxView: View {
     let node: ProcessNode
     let pixelsPerSecond: Double
     let isSelected: Bool
+    let isOnCriticalPath: Bool
     let alwaysShowLabel: Bool
     let onSelect: () -> Void
 
     init(node: ProcessNode, pixelsPerSecond: Double, isSelected: Bool,
-         alwaysShowLabel: Bool = false, onSelect: @escaping () -> Void) {
+         isOnCriticalPath: Bool = false, alwaysShowLabel: Bool = false,
+         onSelect: @escaping () -> Void) {
         self.node = node
         self.pixelsPerSecond = pixelsPerSecond
         self.isSelected = isSelected
+        self.isOnCriticalPath = isOnCriticalPath
         self.alwaysShowLabel = alwaysShowLabel
         self.onSelect = onSelect
     }
@@ -32,10 +35,14 @@ struct ProcessBoxView: View {
             .overlay(labelOverlay, alignment: .leading)
             .overlay(
                 RoundedRectangle(cornerRadius: 3)
-                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
+                    .stroke(
+                        isSelected ? Color.white :
+                        isOnCriticalPath ? Color(red: 1.0, green: 0.75, blue: 0.0) : Color.clear,
+                        lineWidth: isSelected ? 2 : 2
+                    )
             )
             .onTapGesture(perform: onSelect)
-            .help("\(node.commandName) — \(formattedDuration)")
+            .help("\(node.displayName) — \(formattedDuration)")
     }
 
     @ViewBuilder
@@ -53,8 +60,8 @@ struct ProcessBoxView: View {
 
     private func labelText(for width: CGFloat) -> String? {
         guard alwaysShowLabel || width >= 8 else { return nil }
-        if width >= 120 { return "\(node.commandName) — \(formattedDuration)" }
-        return node.commandName
+        if width >= 120 { return "\(node.displayName) — \(formattedDuration)" }
+        return node.displayName
     }
 
     private var formattedDuration: String {

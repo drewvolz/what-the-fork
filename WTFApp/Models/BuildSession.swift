@@ -75,10 +75,11 @@ final class BuildSession: ObservableObject {
             return
         }
 
+        let maxEnd = root.allDescendants.compactMap(\.endTime).max()
         let tl = Timeline(
             rootNode: root,
             startTime: root.startTime,
-            totalDuration: rootEnd - root.startTime
+            totalDuration: max(rootEnd, maxEnd ?? rootEnd) - root.startTime
         )
 
         let metrics = ParallelismAnalyzer.analyzeParallelism(tl)

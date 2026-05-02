@@ -10,7 +10,8 @@ enum TimelineExporter {
     // MARK: - Public API
 
     /// Builds an SVG document from the timeline and returns UTF-8 data.
-    static func render(timeline: Timeline, pixelsPerSecond: Double) -> Data? {
+    static func render(timeline: Timeline, pixelsPerSecond: Double,
+                       criticalPathIDs: Set<Int> = []) -> Data? {
         guard timeline.totalDuration > 0 else { return nil }
 
         let rowH: Double     = 28
@@ -34,7 +35,7 @@ enum TimelineExporter {
             let dur = (node.endTime ?? node.startTime + 0.05) - node.startTime
             let x = leftPad + Double(depth) * indent + (node.startTime - timeline.startTime) * pixelsPerSecond
             let w = max(4.0, dur * pixelsPerSecond)
-            let overflow = w < inlineThreshold ? Double(node.commandName.count) * charW + 6 : 0
+            let overflow = w < inlineThreshold ? Double(node.displayName.count) * charW + 6 : 0
             return max(acc, x + w + overflow)
         }
         let svgW = maxRight + rightPad
@@ -66,23 +67,24 @@ enum TimelineExporter {
             let w   = max(4.0, dur * pixelsPerSecond)
             let fill = svgColor(for: node)
             let ty   = (y + rowH * 0.68).svgPt
+            let isCritical = criticalPathIDs.contains(node.id)
 
-            out.append("  <rect x=\"\(x.svgPt)\" y=\"\(y.svgPt)\" width=\"\(w.svgPt)\" height=\"\(rowH.svgPt)\" rx=\"3\" fill=\"\(fill)\">")
+            out.append("  <rect x=\"\(x.svgPt)\" y=\"\(y.svgPt)\" width=\"\(w.svgPt)\" height=\"\(rowH.svgPt)\" rx=\"3\" fill=\"\(fill)\"\(isCritical ? " stroke=\"#FFBF00\" stroke-width=\"2\"" : "")>")
             // Browser tooltip: always shows full name + duration on hover.
-            out.append("    <title>\(xmlEscape(node.commandName)) (\(durationLabel(dur)))</title>")
+            out.append("    <title>\(xmlEscape(node.displayName)) (\(durationLabel(dur)))</title>")
             out.append("  </rect>")
 
             if w >= inlineThreshold {
                 // Label fits inside the bar — truncate to available width.
                 let maxChars = max(1, Int(w / charW) - 1)
                 let raw = w >= 120
-                    ? "\(node.commandName) \u{2014} \(durationLabel(dur))"
-                    : node.commandName
+                    ? "\(node.displayName) \u{2014} \(durationLabel(dur))"
+                    : node.displayName
                 let label = xmlEscape(String(raw.prefix(maxChars)))
                 out.append("  <text x=\"\((x + 4).svgPt)\" y=\"\(ty)\" font-family=\"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif\" font-size=\"10\" font-weight=\"500\" fill=\"white\" clip-path=\"url(none)\">\(label)</text>")
             } else {
                 // Bar is too narrow — render the full name to the right of the bar.
-                let label = xmlEscape(node.commandName)
+                let label = xmlEscape(node.displayName)
                 out.append("  <text x=\"\((x + w + 3).svgPt)\" y=\"\(ty)\" font-family=\"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif\" font-size=\"9\" fill=\"\(fill)\">\(label)</text>")
             }
         }

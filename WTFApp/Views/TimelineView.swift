@@ -15,6 +15,7 @@ struct TimelineView: View {
     let timeline: Timeline
     @Binding var selectedNode: ProcessNode?
     @Binding var pixelsPerSecond: Double
+    var criticalPathIDs: Set<Int> = []
     @State private var scrollOffset: CGPoint = .zero
     @State private var visibleSize: CGSize = .zero
     private let rowHeight: CGFloat = 36
@@ -127,6 +128,7 @@ struct TimelineView: View {
                         node: node,
                         pixelsPerSecond: pixelsPerSecond,
                         isSelected: selectedNode?.id == node.id,
+                        isOnCriticalPath: criticalPathIDs.contains(node.id),
                         onSelect: { selectedNode = node }
                     )
                     Spacer()

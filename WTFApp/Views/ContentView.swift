@@ -48,6 +48,10 @@ struct SessionView: View {
     @State private var isExporting = false
     @State private var pixelsPerSecond: Double = 100.0
 
+    private var criticalPathIDs: Set<Int> {
+        Set(named.session.analysis?.criticalPath.map(\.id) ?? [])
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             toolbarView
@@ -68,7 +72,7 @@ struct SessionView: View {
                 case .complete:
                     if let timeline = named.session.timeline {
                         VSplitView {
-                            TimelineView(timeline: timeline, selectedNode: $selectedNode, pixelsPerSecond: $pixelsPerSecond)
+                            TimelineView(timeline: timeline, selectedNode: $selectedNode, pixelsPerSecond: $pixelsPerSecond, criticalPathIDs: criticalPathIDs)
                                 .frame(minHeight: 200)
                             bottomPanel
                                 .frame(minHeight: 120, maxHeight: 300)
@@ -197,7 +201,18 @@ struct SessionView: View {
         HSplitView {
             ProcessDetailPanel(node: selectedNode)
                 .frame(minWidth: 250)
-            if let analysis = named.session.analysis {
+            if let analysis = named.session.analysis, let timeline = named.session.timeline {
+                let concurrencyPoints = ConcurrencyComputer.compute(
+                    processes: timeline.allProcesses,
+                    startTime: timeline.startTime,
+                    totalDuration: timeline.totalDuration
+                )
+                ConcurrencyChartView(
+                    points: concurrencyPoints,
+                    totalDuration: timeline.totalDuration,
+                    peak: ConcurrencyComputer.peak(concurrencyPoints)
+                )
+                .frame(minWidth: 150)
                 AnalysisPanel(analysis: analysis)
                     .frame(minWidth: 250)
             }
@@ -212,7 +227,9 @@ struct SessionView: View {
         Task {
             defer { isExporting = false }
             let exportPPS = pixelsPerSecond
-            guard let svgData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
+            let cpIDs = criticalPathIDs
+            guard let svgData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS,
+                                                        criticalPathIDs: cpIDs) else { return }
 
             let panel = NSSavePanel()
             panel.allowedContentTypes = [UTType.svg]
