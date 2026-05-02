@@ -90,8 +90,6 @@ struct SessionView: View {
 
     private var toolbarView: some View {
         HStack {
-            Image(systemName: "fork.knife")
-                .foregroundStyle(.secondary)
             Text("What the Fork")
                 .font(.headline)
             Spacer()

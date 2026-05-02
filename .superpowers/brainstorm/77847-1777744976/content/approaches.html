@@ -1,0 +1,54 @@
+<h2>Three Approaches to the Build Analyzer</h2>
+<p class="subtitle">Each builds on the previous. Which scope feels right?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Navigation Fixes Only</h3>
+      <p>Fix the two core frustrations: zoom anchors to the visible center (no more losing your place), and minimap click <em>centers</em> the viewport on the clicked position instead of jumping to the leading edge. Minimal scope, high-confidence win.</p>
+      <ul style="margin-top:8px;padding-left:16px;font-size:13px;color:var(--text-secondary)">
+        <li>✅ Anchor-preserving zoom</li>
+        <li>✅ Minimap centers on click</li>
+        <li>✅ Minimap drag moves viewport smoothly</li>
+        <li>❌ No label or hierarchy improvements</li>
+        <li>❌ No new insights</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Navigation + Readability — <em>Recommended</em></h3>
+      <p>Everything in A, plus a cohesive pass on visual clarity: hierarchy connector lines, richer hover tooltips showing timing and wait context, label fade-out instead of hard cutoff, idle gap shading, and a smarter minimap that shows critical path in gold.</p>
+      <ul style="margin-top:8px;padding-left:16px;font-size:13px;color:var(--text-secondary)">
+        <li>✅ Everything in A</li>
+        <li>✅ Connector lines between parent/child rows</li>
+        <li>✅ Idle gap shading (dead time between processes)</li>
+        <li>✅ Rich hover tooltip (timing, category, wait time)</li>
+        <li>✅ Minimap shows critical path in gold</li>
+        <li>❌ No new summary panel</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full Experience Redesign</h3>
+      <p>Everything in B, plus a Build Health overview panel docked above the timeline: key metrics at a glance (critical path duration, top bottlenecks, parallelism grade), with clickable hotspots that jump directly to the relevant region.</p>
+      <ul style="margin-top:8px;padding-left:16px;font-size:13px;color:var(--text-secondary)">
+        <li>✅ Everything in B</li>
+        <li>✅ Build Health panel (top bottlenecks, critical path summary)</li>
+        <li>✅ Clickable insight hotspots → scroll to node</li>
+        <li>✅ Keyboard navigation (←/→ arrows between critical path nodes)</li>
+        <li>⚠️ Larger scope, more risk</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:20px;font-size:13px;color:var(--text-secondary)">
+  <strong>My recommendation: B.</strong> It addresses every pain you mentioned (navigation, labels, hierarchy, insights) without the scope risk of a full panel redesign. C can always be a follow-up.
+</p>

@@ -1,0 +1,111 @@
+<h2>Node Design: Size & Color</h2>
+<p class="subtitle">Which approach feels right for showing process names and distinguishing node types?</p>
+
+<div class="cards">
+
+  <!-- Option A: Taller rows, always show name -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;padding:12px 16px;border-radius:6px;font-family:monospace;font-size:12px">
+        <div style="color:#6c7086;font-size:10px;margin-bottom:6px">── ruler ──────────────────────────────────────────</div>
+        <!-- row 1: build system, tall -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px">
+          <div style="width:180px;height:36px;background:#4c78d4;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden">xcodebuild</div>
+          <div style="flex:1"></div>
+        </div>
+        <!-- row 2: compiler -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:16px">
+          <div style="width:90px;height:36px;background:#3d9e5f;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:11px;font-weight:600">swiftc</div>
+          <div style="flex:1"></div>
+        </div>
+        <!-- row 3: compiler -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:16px">
+          <div style="margin-left:70px;width:110px;height:36px;background:#3d9e5f;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:11px;font-weight:600">swiftc</div>
+          <div style="flex:1"></div>
+        </div>
+        <!-- row 4: linker -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:32px">
+          <div style="margin-left:140px;width:50px;height:36px;background:#e6b84a;border-radius:4px;display:flex;align-items:center;padding:0 6px;color:white;font-size:11px;font-weight:600">ld</div>
+          <div style="flex:1"></div>
+        </div>
+        <!-- row 5: other (hash color) -->
+        <div style="display:flex;align-items:center;gap:0;padding-left:16px">
+          <div style="margin-left:20px;width:70px;height:36px;background:#8b5cf6;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:11px;font-weight:600">python3</div>
+          <div style="flex:1"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Taller rows (36px), name-hashed colors</h3>
+      <p>Always show full name. "Other" category gets a color based on a hash of the command name — so <em>python3</em> is always purple, <em>node</em> is always teal, etc. Every unique tool has a distinct consistent color.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Medium rows, category colors only -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;padding:12px 16px;border-radius:6px;font-family:monospace;font-size:12px">
+        <div style="color:#6c7086;font-size:10px;margin-bottom:6px">── ruler ──────────────────────────────────────────</div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px">
+          <div style="width:180px;height:28px;background:#4c78d4;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:10px;font-weight:600">xcodebuild</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:16px">
+          <div style="width:90px;height:28px;background:#3d9e5f;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:10px;font-weight:600">swiftc</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:16px">
+          <div style="margin-left:70px;width:110px;height:28px;background:#3d9e5f;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:10px;font-weight:600">swiftc</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:32px">
+          <div style="margin-left:140px;width:50px;height:28px;background:#e6b84a;border-radius:4px;display:flex;align-items:center;padding:0 6px;color:white;font-size:10px;font-weight:600">ld</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;padding-left:16px">
+          <div style="margin-left:20px;width:70px;height:28px;background:#a0a0a0;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white;font-size:10px;font-weight:600">python3</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Current height (28px), category colors only</h3>
+      <p>Keep current row height. "Other" stays gray. Names show if wide enough. Clean but "other" processes all look the same and small nodes lose their labels.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Taller rows, category + hashed accent -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;padding:12px 16px;border-radius:6px;font-family:monospace;font-size:12px">
+        <div style="color:#6c7086;font-size:10px;margin-bottom:6px">── ruler ──────────────────────────────────────────</div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px">
+          <div style="width:180px;height:40px;background:#4c78d4;border-radius:4px;display:flex;align-items:center;padding:0 10px;color:white">
+            <span style="font-size:12px;font-weight:700">xcodebuild</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:16px">
+          <div style="width:90px;height:40px;background:#3d9e5f;border-radius:4px;display:flex;align-items:center;padding:0 10px;color:white">
+            <span style="font-size:12px;font-weight:700">swiftc</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:16px">
+          <div style="margin-left:70px;width:110px;height:40px;background:#3d9e5f;border-radius:4px;display:flex;align-items:center;padding:0 10px;color:white">
+            <span style="font-size:12px;font-weight:700">swiftc</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:4px;padding-left:32px">
+          <div style="margin-left:140px;width:50px;height:40px;background:#e6b84a;border-radius:4px;display:flex;align-items:center;padding:0 8px;color:white">
+            <span style="font-size:11px;font-weight:700">ld</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0;padding-left:16px">
+          <div style="margin-left:20px;width:70px;height:40px;background:#7c3aed;border-radius:4px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 8px;color:white">
+            <span style="font-size:12px;font-weight:700">python3</span>
+            <span style="font-size:9px;opacity:0.75">other</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Tall rows (40px), name + category label, hashed colors</h3>
+      <p>Biggest nodes. Always shows full name + category label below it (when wide enough). "Other" still gets hashed colors. Most readable at a glance, but takes more vertical space.</p>
+    </div>
+  </div>
+
+</div>

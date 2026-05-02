@@ -227,7 +227,7 @@ struct TimelineView: View {
                     HStack(spacing: 0) {
                         Spacer().frame(width: CGFloat(depth) * 16)
                         Spacer().frame(width: max(0, CGFloat((childEnd - timeline.startTime) * pixelsPerSecond)))
-                        IdleGapView(width: CGFloat(gap * pixelsPerSecond), duration: gap)
+                        IdleGapView(width: min(CGFloat(gap * pixelsPerSecond), visibleSize.width + 200), duration: gap)
                         Spacer()
                     }
                     .frame(height: rowHeight)
@@ -247,15 +247,14 @@ private struct IdleGapView: View {
     var body: some View {
         Canvas { context, size in
             // Diagonal hatch lines at 45°, 6pt spacing.
+            var path = Path()
             var x: CGFloat = -size.height
             while x < size.width + size.height {
-                let path = Path { p in
-                    p.move(to: CGPoint(x: x, y: 0))
-                    p.addLine(to: CGPoint(x: x + size.height, y: size.height))
-                }
-                context.stroke(path, with: .color(Color.orange.opacity(0.18)), lineWidth: 1)
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x + size.height, y: size.height))
                 x += 6
             }
+            context.stroke(path, with: .color(Color.orange.opacity(0.18)), lineWidth: 1)
         }
         .frame(width: max(4, width), height: 24)
         .overlay(

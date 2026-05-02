@@ -1,0 +1,7 @@
+{"type":"server-started","port":54590,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:54590","screen_dir":"/Users/drew/dev/what-the-fork/.superpowers/brainstorm/77847-1777744976/content","state_dir":"/Users/drew/dev/what-the-fork/.superpowers/brainstorm/77847-1777744976/state"}
+{"type":"screen-added","file":"/Users/drew/dev/what-the-fork/.superpowers/brainstorm/77847-1777744976/content/approaches.html"}
+{"source":"user-event","type":"click","text":"B\n    \n      Navigation + Readability — Recommended\n      Everything in A, plus a cohesive pass on visual clarity: hierarchy connector lines, richer hover tooltips showing timing and wait context, label fade-out instead of hard cutoff, idle gap shading, and a smarter minimap that shows critical path in gold.\n      \n        ✅ Everything in A\n        ✅ Connector lines between parent/child rows\n        ✅ Idle gap shading (dead time between processes)\n        ✅ Rich hover tooltip (timing, category, wait time)\n        ✅ Minimap shows critical path in gold\n        ❌ No new summary panel","choice":"b","id":null,"timestamp":1777745161271}
+{"type":"screen-added","file":"/Users/drew/dev/what-the-fork/.superpowers/brainstorm/77847-1777744976/content/design-navigation.html"}
+{"type":"screen-added","file":"/Users/drew/dev/what-the-fork/.superpowers/brainstorm/77847-1777744976/content/design-readability.html"}
+{"type":"screen-added","file":"/Users/drew/dev/what-the-fork/.superpowers/brainstorm/77847-1777744976/content/waiting.html"}
+{"type":"server-stopped","reason":"idle timeout"}
