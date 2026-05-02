@@ -1,15 +1,24 @@
 // wtf/main.swift
 import Foundation
 
-let args = CommandLine.arguments.dropFirst()
+let allArgs = Array(CommandLine.arguments.dropFirst())
 
-guard !args.isEmpty else {
-    fputs("Usage: wtf <command> [args...]\n", stderr)
-    exit(1)
+guard !allArgs.isEmpty, allArgs[0] != "--help", allArgs[0] != "-h" else {
+    print("""
+    Usage: wtf <command> [args...]
+
+    Wraps a build command and visualizes its process tree in real time.
+
+    Examples:
+      wtf make
+      wtf cargo build
+      wtf xcodebuild -scheme MyApp build
+    """)
+    exit(allArgs.isEmpty ? 1 : 0)
 }
 
-let command = String(args[0])
-let commandArgs = Array(args.dropFirst())
+let command = allArgs[0]
+let commandArgs = Array(allArgs.dropFirst())
 let sessionID = UUID().uuidString
 
 do {
