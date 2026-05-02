@@ -14,8 +14,7 @@ struct ProcessBoxView: View {
     let waitTime: TimeInterval
     let onSelect: () -> Void
 
-    @State private var isHovered = false
-    @State private var dismissTask: DispatchWorkItem?
+    @State private var isShowingTooltip = false
 
     init(node: ProcessNode, pixelsPerSecond: Double, isSelected: Bool,
          isOnCriticalPath: Bool = false,
@@ -49,7 +48,7 @@ struct ProcessBoxView: View {
                             lineWidth: 2
                         )
                 )
-                .onTapGesture(perform: onSelect)
+                .onTapGesture { onSelect(); isShowingTooltip.toggle() }
 
             // Label: always visible at natural width (never truncated).
             // Wide bars (≥40px): label starts inside bar in white, overflows right.
@@ -63,17 +62,7 @@ struct ProcessBoxView: View {
                 .allowsHitTesting(false)
         }
         .frame(width: width, height: 32)
-        .onHover { hovering in
-            dismissTask?.cancel()
-            if hovering {
-                isHovered = true
-            } else {
-                let task = DispatchWorkItem { isHovered = false }
-                dismissTask = task
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: task)
-            }
-        }
-        .popover(isPresented: $isHovered) {
+        .popover(isPresented: $isShowingTooltip) {
             tooltipView
         }
     }
