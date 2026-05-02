@@ -136,8 +136,9 @@ struct TimelineView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private func nodeRow(_ node: ProcessNode, depth: Int) -> AnyView {
-        AnyView(
+    private func nodeRow(_ node: ProcessNode, depth: Int, parentEndTime: TimeInterval? = nil) -> AnyView {
+        let waitT = parentEndTime.map { max(0.0, node.startTime - $0) } ?? 0.0
+        return AnyView(
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .topLeading) {
                     // Connector line + tick for non-root rows.
@@ -169,6 +170,8 @@ struct TimelineView: View {
                             pixelsPerSecond: pixelsPerSecond,
                             isSelected: selectedNode?.id == node.id,
                             isOnCriticalPath: criticalPathIDs.contains(node.id),
+                            startTimeOffset: node.startTime - timeline.startTime,
+                            waitTime: waitT,
                             onSelect: { selectedNode = node }
                         )
                         Spacer()
@@ -216,7 +219,7 @@ struct TimelineView: View {
     @ViewBuilder
     private func gapAndRow(_ children: [ProcessNode], depth: Int, parentEndTime: TimeInterval) -> some View {
         ForEach(children.indices, id: \.self) { i in
-            nodeRow(children[i], depth: depth)
+            nodeRow(children[i], depth: depth, parentEndTime: parentEndTime)
             if i + 1 < children.count {
                 let childEnd = children[i].endTime ?? children[i].startTime
                 let gap = children[i + 1].startTime - childEnd
