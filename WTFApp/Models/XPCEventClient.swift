@@ -39,14 +39,21 @@ final class XPCEventClient {
 
         proxy.subscribeToSession(id: sessionID) { [weak self] data in
             guard let self else { return }
-            if let data = data as Data?, let event = self.decodeEvent(data) {
-                NSLog("WTFApp: received event type=%@", event.type.rawValue)
-                DispatchQueue.main.async { self.onEvent?(event) }
-                self.pollForEvents()
-            } else {
+            guard let nsData = data else {
+                // Explicit nil from daemon = session ended, all events drained.
                 NSLog("WTFApp: received nil — session complete")
                 DispatchQueue.main.async { self.onSessionComplete?() }
+                return
             }
+            // Non-nil data = a real event. Decode and deliver, then keep polling.
+            // A decode failure is a skip, NOT a session-end signal.
+            if let event = self.decodeEvent(nsData as Data) {
+                NSLog("WTFApp: received event type=%@", event.type.rawValue)
+                DispatchQueue.main.async { self.onEvent?(event) }
+            } else {
+                NSLog("WTFApp: WARNING — failed to decode event, skipping")
+            }
+            self.pollForEvents()
         }
     }
 

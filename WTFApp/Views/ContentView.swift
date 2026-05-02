@@ -23,11 +23,7 @@ struct ContentView: View {
                     idleView
 
                 case .capturing:
-                    if !session.liveEvents.isEmpty, let partialRoot = partialTimeline {
-                        TimelineView(timeline: partialRoot, selectedNode: $selectedNode)
-                    } else {
-                        capturingView
-                    }
+                    capturingView
 
                 case .complete:
                     if let timeline = session.timeline {
@@ -81,8 +77,13 @@ struct ContentView: View {
     private var capturingView: some View {
         VStack(spacing: 16) {
             ProgressView()
-            Text("Capturing build...")
+            Text("Capturing build…")
                 .foregroundStyle(.secondary)
+            if !session.liveEvents.isEmpty {
+                Text("\(session.liveEvents.count) events received")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -110,16 +111,6 @@ struct ContentView: View {
                     .frame(minWidth: 250)
             }
         }
-    }
-
-    // Build a partial timeline from live events for live preview
-    private var partialTimeline: Timeline? {
-        guard let rootPID = session.rootPID,
-              let firstEvent = session.liveEvents.first else { return nil }
-        let root = TreeBuilder.buildTree(from: session.liveEvents, rootPID: rootPID)
-        let now = Date().timeIntervalSince1970
-        let duration = now - firstEvent.timestamp
-        return Timeline(rootNode: root, startTime: firstEvent.timestamp, totalDuration: max(duration, 0.1))
     }
 
     private func handleIncomingURL(_ url: URL) {
