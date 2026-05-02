@@ -9,17 +9,34 @@ enum TimelineExporter {
     private static let maxImageDimension: CGFloat = 16000
 
     /// Renders the full timeline tree to PNG data at the given zoom level.
-    /// If the resulting width would exceed `maxImageDimension`, the zoom is
-    /// reduced proportionally.
+    /// Scales both width and height to fit within `maxImageDimension` at @2x,
+    /// so large graphs with many nodes don't silently fail.
     static func render(timeline: Timeline, pixelsPerSecond: Double) -> Data? {
         guard timeline.totalDuration > 0 else { return nil }
 
-        // Clamp pps so image width stays manageable.
-        let rawWidth = CGFloat(timeline.totalDuration * pixelsPerSecond) + 80
-        let scale = rawWidth > maxImageDimension ? maxImageDimension / rawWidth : 1.0
-        let effectivePPS = pixelsPerSecond * scale
+        let baseRowHeight: CGFloat = 36
+        let rowPadding: CGFloat = 4
+        let nodeCount = CGFloat(countNodes(timeline.rootNode))
 
-        let view = ExportableTimelineView(timeline: timeline, pixelsPerSecond: effectivePPS)
+        // Natural content dimensions before any scaling.
+        let naturalWidth = CGFloat(timeline.totalDuration * pixelsPerSecond) + 80
+        let naturalHeight = nodeCount * (baseRowHeight + rowPadding) + 32
+
+        // Budget per dimension: maxImageDimension is the pixel limit; at @2x
+        // the logical content must fit within half that.
+        let budget = maxImageDimension / 2.0
+        let scaleW = naturalWidth  > budget ? budget / naturalWidth  : 1.0
+        let scaleH = naturalHeight > budget ? budget / naturalHeight : 1.0
+        let fitScale = min(scaleW, scaleH)
+
+        let effectivePPS = pixelsPerSecond * fitScale
+        let effectiveRowHeight = baseRowHeight * fitScale
+
+        let view = ExportableTimelineView(
+            timeline: timeline,
+            pixelsPerSecond: effectivePPS,
+            rowHeight: effectiveRowHeight
+        )
 
         if #available(macOS 13.0, *) {
             let renderer = ImageRenderer(content: view)
@@ -30,15 +47,25 @@ enum TimelineExporter {
             return nil
         }
     }
+
+    private static func countNodes(_ node: ProcessNode) -> Int {
+        node.children.reduce(1) { $0 + countNodes($1) }
+    }
 }
 
 /// A non-scrolling, non-interactive view of the full timeline used for export.
 private struct ExportableTimelineView: View {
     let timeline: Timeline
     let pixelsPerSecond: Double
+    let rowHeight: CGFloat
 
-    private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
+
+    init(timeline: Timeline, pixelsPerSecond: Double, rowHeight: CGFloat = 36) {
+        self.timeline = timeline
+        self.pixelsPerSecond = pixelsPerSecond
+        self.rowHeight = rowHeight
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
