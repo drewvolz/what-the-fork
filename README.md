@@ -38,7 +38,7 @@ open WhatTheFork.xcodeproj
 ## Running Tests
 
 ```bash
-swift test
+cd WTFCore && swift test
 ```
 
 ## Architecture

@@ -8,7 +8,7 @@ options:
 
 packages:
   WTFCore:
-    path: .
+    path: WTFCore
 
 targets:
 
