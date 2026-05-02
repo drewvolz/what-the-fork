@@ -4,9 +4,13 @@ A macOS-native tool that visualizes your build process as an interactive timelin
 
 Named after the `fork()` syscall.
 
+**Vector (SVG):**
 ![Build timeline visualization](docs/images/cargo_build_ccc_server_next.svg)
 
-*Screenshot showing interactive process tree with idle time gaps and critical path highlighting.*
+**Raster (PNG):**
+![Build timeline visualization](docs/images/cargo_build_ccc_server_next.png)
+
+*Screenshots showing interactive process tree with idle time gaps and critical path highlighting.*
 
 ## Usage
 
