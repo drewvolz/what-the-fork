@@ -39,8 +39,14 @@ final class BuildSession: ObservableObject {
     }
 
     private func finalize() {
-        guard let rootPID, !liveEvents.isEmpty else {
-            state = .failed("No events received")
+        guard let rootPID else {
+            state = .failed("No session started")
+            return
+        }
+
+        guard !liveEvents.isEmpty else {
+            // ESF may be unavailable (SIP enabled) — transition to complete with empty data
+            state = .failed("No events received — is SIP disabled? See README.")
             return
         }
 

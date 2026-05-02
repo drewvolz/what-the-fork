@@ -6,6 +6,7 @@ import WTFCore
 @objc protocol WTFDaemonXPCProtocol {
     func startSession(id: String, rootPID: Int32, withReply reply: @escaping (Bool) -> Void)
     func subscribeToSession(id: String, withReply reply: @escaping (NSData?) -> Void)
+    func endSession(id: String)
 }
 
 /// Connects to the WTFDaemon XPC service and converts raw JSON events into ProcessEvents.

@@ -24,6 +24,16 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
         try? client.start()
     }
 
+    func endSession(id: String) {
+        queue.async { [weak self] in
+            guard let self else { return }
+            // Flush all waiting subscribers with nil to signal completion
+            let replies = self.pendingReplies.removeValue(forKey: id) ?? []
+            replies.forEach { $0(nil) }
+            self.activeSessions.removeValue(forKey: id)
+        }
+    }
+
     func addSubscriber(sessionID: String, reply: @escaping (NSData?) -> Void) {
         pendingReplies[sessionID, default: []].append(reply)
     }
@@ -59,6 +69,10 @@ final class XPCSessionHandler: NSObject, WTFDaemonXPCProtocol {
     func startSession(id: String, rootPID: Int32, withReply reply: @escaping (Bool) -> Void) {
         server?.startSession(id: id, rootPID: rootPID)
         reply(true)
+    }
+
+    func endSession(id: String) {
+        server?.endSession(id: id)
     }
 
     func subscribeToSession(id: String, withReply reply: @escaping (NSData?) -> Void) {

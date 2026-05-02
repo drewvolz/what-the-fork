@@ -32,6 +32,8 @@ do {
     var status: Int32 = 0
     waitpid(buildPID, &status, 0)
     let exitCode = (status >> 8) & 0xff
+
+    DaemonLauncher.endSession(id: sessionID)
     print("wtf: build completed with exit code \(exitCode)")
 
 } catch {
