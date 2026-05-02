@@ -7,6 +7,8 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
 
     private var activeSessions: [String: ESFClient] = [:]
     private var pendingReplies: [String: [(NSData?) -> Void]] = [:]
+    /// Sessions that ended before the app subscribed — immediately resolve any late subscriber.
+    private var endedSessions: Set<String> = []
     private let queue = DispatchQueue(label: "com.whatthefork.daemon.events", qos: .userInteractive)
 
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
@@ -17,44 +19,63 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
     }
 
     func startSession(id: String, rootPID: Int32) {
-        let client = ESFClient(rootPID: rootPID) { [weak self] event in
-            self?.broadcastEvent(event, sessionID: id)
+        queue.async { [weak self] in
+            guard let self else { return }
+            NSLog("WTFDaemon: startSession id=%@ rootPID=%d", id, rootPID)
+            let client = ESFClient(rootPID: rootPID) { [weak self] event in
+                self?.broadcastEvent(event, sessionID: id)
+            }
+            self.activeSessions[id] = client
+            try? client.start()
         }
-        activeSessions[id] = client
-        try? client.start()
     }
 
     func endSession(id: String) {
         queue.async { [weak self] in
             guard let self else { return }
-            // Flush all waiting subscribers with nil to signal completion
+            NSLog("WTFDaemon: endSession id=%@", id)
             let replies = self.pendingReplies.removeValue(forKey: id) ?? []
+            NSLog("WTFDaemon: flushing %d pending replies", replies.count)
             replies.forEach { $0(nil) }
             self.activeSessions.removeValue(forKey: id)
+            // Mark as ended so late subscribers get an immediate nil
+            self.endedSessions.insert(id)
         }
     }
 
     func addSubscriber(sessionID: String, reply: @escaping (NSData?) -> Void) {
-        pendingReplies[sessionID, default: []].append(reply)
+        queue.async { [weak self] in
+            guard let self else { return }
+            if self.endedSessions.contains(sessionID) {
+                // Session already ended — immediately signal completion
+                NSLog("WTFDaemon: late subscriber for ended session %@, resolving immediately", sessionID)
+                reply(nil)
+            } else {
+                self.pendingReplies[sessionID, default: []].append(reply)
+            }
+        }
     }
 
     private func broadcastEvent(_ event: ESFClient.ProcessEventData, sessionID: String) {
-        guard let replies = pendingReplies[sessionID], !replies.isEmpty else { return }
-        let dict: [String: Any] = [
-            "type": event.type,
-            "pid": event.pid,
-            "ppid": event.ppid,
-            "timestamp": event.timestamp,
-            "command": event.command,
-            "args": event.args,
-            "cwd": event.cwd,
-            "exit_code": event.exitCode as Any,
-        ]
-        guard let data = try? JSONSerialization.data(withJSONObject: dict) else { return }
-        let nsData = data as NSData
-        // Send to first waiting subscriber, rotate queue
-        let reply = pendingReplies[sessionID]!.removeFirst()
-        reply(nsData)
+        queue.async { [weak self] in
+            guard let self,
+                  var replies = self.pendingReplies[sessionID], !replies.isEmpty else { return }
+            let dict: [String: Any] = [
+                "type": event.type,
+                "pid": event.pid,
+                "ppid": event.ppid,
+                "timestamp": event.timestamp,
+                "command": event.command,
+                "args": event.args,
+                "cwd": event.cwd,
+                "exit_code": event.exitCode as Any,
+            ]
+            guard let data = try? JSONSerialization.data(withJSONObject: dict) else { return }
+            let nsData = data as NSData
+            let reply = replies.removeFirst()
+            self.pendingReplies[sessionID] = replies
+            reply(nsData)
+        }
     }
 }
 

@@ -30,16 +30,21 @@ final class XPCEventClient {
 
     private func pollForEvents() {
         guard let proxy = connection?.remoteObjectProxyWithErrorHandler({ [weak self] error in
+            NSLog("WTFApp: XPC connection error: %@", error.localizedDescription)
             DispatchQueue.main.async { self?.onSessionComplete?() }
-        }) as? WTFDaemonXPCProtocol else { return }
+        }) as? WTFDaemonXPCProtocol else {
+            NSLog("WTFApp: failed to get XPC proxy")
+            return
+        }
 
         proxy.subscribeToSession(id: sessionID) { [weak self] data in
             guard let self else { return }
             if let data = data as Data?, let event = self.decodeEvent(data) {
+                NSLog("WTFApp: received event type=%@", event.type.rawValue)
                 DispatchQueue.main.async { self.onEvent?(event) }
-                // Immediately re-subscribe for the next event (long-poll pattern)
                 self.pollForEvents()
             } else {
+                NSLog("WTFApp: received nil — session complete")
                 DispatchQueue.main.async { self.onSessionComplete?() }
             }
         }
