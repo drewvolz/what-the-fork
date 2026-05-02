@@ -12,7 +12,8 @@ let package = Package(
         .testTarget(
             name: "WTFCoreTests",
             dependencies: ["WTFCore"],
-            path: "Tests/WTFCoreTests"
+            path: "Tests/WTFCoreTests",
+            resources: [.copy("Fixtures")]
         ),
     ]
 )
