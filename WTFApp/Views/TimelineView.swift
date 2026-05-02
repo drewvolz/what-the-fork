@@ -176,9 +176,7 @@ struct TimelineView: View {
                     .frame(height: rowHeight)
                 }
 
-                ForEach(node.children, id: \.id) { child in
-                    nodeRow(child, depth: depth + 1)
-                }
+                gapAndRow(node.children, depth: depth + 1, parentEndTime: node.endTime ?? node.startTime)
             }
         )
     }
@@ -210,6 +208,63 @@ struct TimelineView: View {
         withAnimation(.easeOut(duration: 0.15)) {
             scrollProxy?.scrollTo("t_\(index)", anchor: anchor)
         }
+    }
+
+    // MARK: - Children with gap overlays
+
+    /// Renders child rows, inserting an IdleGapView between siblings whose gap is ≥ 50ms.
+    @ViewBuilder
+    private func gapAndRow(_ children: [ProcessNode], depth: Int, parentEndTime: TimeInterval) -> some View {
+        ForEach(children.indices, id: \.self) { i in
+            nodeRow(children[i], depth: depth)
+            if i + 1 < children.count {
+                let childEnd = children[i].endTime ?? children[i].startTime
+                let gap = children[i + 1].startTime - childEnd
+                if gap >= 0.05 {
+                    HStack(spacing: 0) {
+                        Spacer().frame(width: CGFloat(depth) * 16)
+                        Spacer().frame(width: max(0, CGFloat((childEnd - timeline.startTime) * pixelsPerSecond)))
+                        IdleGapView(width: CGFloat(gap * pixelsPerSecond), duration: gap)
+                        Spacer()
+                    }
+                    .frame(height: rowHeight)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Idle gap
+
+/// Hatched amber strip shown between sibling processes with a gap ≥ 50ms.
+private struct IdleGapView: View {
+    let width: CGFloat
+    let duration: TimeInterval
+
+    var body: some View {
+        Canvas { context, size in
+            // Diagonal hatch lines at 45°, 6pt spacing.
+            var x: CGFloat = -size.height
+            while x < size.width + size.height {
+                let path = Path { p in
+                    p.move(to: CGPoint(x: x, y: 0))
+                    p.addLine(to: CGPoint(x: x + size.height, y: size.height))
+                }
+                context.stroke(path, with: .color(Color.orange.opacity(0.18)), lineWidth: 1)
+                x += 6
+            }
+        }
+        .frame(width: max(4, width), height: 24)
+        .overlay(
+            RoundedRectangle(cornerRadius: 2)
+                .stroke(
+                    Color.orange.opacity(0.3),
+                    style: StrokeStyle(lineWidth: 1, dash: [3, 3])
+                )
+        )
+        .help(duration >= 1
+              ? String(format: "Idle: %.2fs", duration)
+              : String(format: "Idle: %.0fms", duration * 1000))
     }
 }
 
