@@ -3,12 +3,13 @@ import Foundation
 import Combine
 import WTFCore
 
-/// Owns the collection of sessions, one per wtf run. Always keeps at least one session.
 final class SessionManager: ObservableObject {
     @Published var sessions: [NamedSession]
     @Published var selectedID: UUID
+    let store = SessionStore()
 
     private var sessionCancellables: [UUID: AnyCancellable] = [:]
+    private var completionCancellables: [UUID: AnyCancellable] = [:]
 
     init() {
         let initial = NamedSession()
@@ -17,7 +18,6 @@ final class SessionManager: ObservableObject {
         observe(initial)
     }
 
-    /// Creates a new session, starts capture on it, and selects it.
     func addSession(sessionID: String, rootPID: Int) {
         let named = NamedSession()
         sessions.append(named)
@@ -26,9 +26,9 @@ final class SessionManager: ObservableObject {
         named.session.startCapture(sessionID: sessionID, rootPID: rootPID)
     }
 
-    /// Removes a session. Always keeps at least one (inserts a fresh idle session if needed).
     func removeSession(id: UUID) {
         sessionCancellables.removeValue(forKey: id)
+        completionCancellables.removeValue(forKey: id)
         sessions.removeAll { $0.id == id }
         if sessions.isEmpty {
             let fresh = NamedSession()
@@ -44,5 +44,12 @@ final class SessionManager: ObservableObject {
         sessionCancellables[named.id] = named.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.objectWillChange.send() }
+
+        completionCancellables[named.id] = named.session.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self, case .complete = state, !named.isRestored else { return }
+                self.store.save(named: named)
+            }
     }
 }
