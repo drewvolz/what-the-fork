@@ -15,6 +15,7 @@ struct ProcessBoxView: View {
     let onSelect: () -> Void
 
     @State private var isHovered = false
+    @State private var dismissTask: DispatchWorkItem?
 
     init(node: ProcessNode, pixelsPerSecond: Double, isSelected: Bool,
          isOnCriticalPath: Bool = false,
@@ -62,7 +63,16 @@ struct ProcessBoxView: View {
                 .allowsHitTesting(false)
         }
         .frame(width: width, height: 32)
-        .onHover { isHovered = $0 }
+        .onHover { hovering in
+            dismissTask?.cancel()
+            if hovering {
+                isHovered = true
+            } else {
+                let task = DispatchWorkItem { isHovered = false }
+                dismissTask = task
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: task)
+            }
+        }
         .popover(isPresented: $isHovered) {
             tooltipView
         }

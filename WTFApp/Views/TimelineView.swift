@@ -170,7 +170,7 @@ struct TimelineView: View {
                             pixelsPerSecond: pixelsPerSecond,
                             isSelected: selectedNode?.id == node.id,
                             isOnCriticalPath: criticalPathIDs.contains(node.id),
-                            startTimeOffset: node.startTime - timeline.startTime,
+                            startTimeOffset: max(0, node.startTime - timeline.startTime),
                             waitTime: waitT,
                             onSelect: { selectedNode = node }
                         )
