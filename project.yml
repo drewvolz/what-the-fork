@@ -45,6 +45,8 @@ targets:
       - path: WTFDaemon
     dependencies:
       - package: WTFCore
+      - sdk: libEndpointSecurity.tbd
+      - sdk: libbsm.tbd
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.whatthefork.daemon

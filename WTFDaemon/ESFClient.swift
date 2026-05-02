@@ -76,10 +76,10 @@ final class ESFClient {
 
         case ES_EVENT_TYPE_NOTIFY_EXEC:
             let execPID = audit_token_to_pid(msg.process.pointee.audit_token)
-            let execEvent = msg.event.exec
+            var execEvent = msg.event.exec
             let target = execEvent.target.pointee
             let command = commandPath(from: target)
-            let args = execArgs(from: execEvent)
+            let args = execArgs(from: &execEvent)
             onEvent(ProcessEventData(
                 type: "exec",
                 pid: Int(execPID),
@@ -124,14 +124,14 @@ final class ESFClient {
     }
 
     private func cwdPath(from process: es_process_t) -> String {
-        guard let cwdPtr = process.cwd?.pointee else { return "" }
-        return String(cString: cwdPtr.path.data)
+        // es_process_t.cwd is unavailable in this SDK; cwd is omitted from process events
+        return ""
     }
 
-    private func execArgs(from event: es_event_exec_t) -> [String] {
+    private func execArgs(from event: inout es_event_exec_t) -> [String] {
         let count = es_exec_arg_count(&event)
-        return (0..<count).compactMap { i in
-            guard let token = es_exec_arg(&event, i) else { return nil }
+        return (0..<count).map { i in
+            let token = es_exec_arg(&event, UInt32(i))
             return String(cString: token.data)
         }
     }
