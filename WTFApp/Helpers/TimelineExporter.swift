@@ -41,8 +41,11 @@ enum TimelineExporter {
         if #available(macOS 13.0, *) {
             let renderer = ImageRenderer(content: view)
             renderer.scale = 2.0  // @2x for crisp text
-            guard let nsImage = renderer.nsImage else { return nil }
-            return nsImage.pngData()
+            // Use cgImage directly — NSImage.cgImage(forProposedRect:) drops
+            // pixel data when called on an ImageRenderer-backed NSImage.
+            guard let cgImage = renderer.cgImage else { return nil }
+            let bitmap = NSBitmapImageRep(cgImage: cgImage)
+            return bitmap.representation(using: .png, properties: [:])
         } else {
             return nil
         }
@@ -121,12 +124,4 @@ private struct ExportableTimelineView: View {
     }
 }
 
-// MARK: - NSImage → PNG
 
-private extension NSImage {
-    func pngData() -> Data? {
-        guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
-        let bitmap = NSBitmapImageRep(cgImage: cgImage)
-        return bitmap.representation(using: .png, properties: [:])
-    }
-}
