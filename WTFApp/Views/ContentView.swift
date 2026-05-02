@@ -46,6 +46,7 @@ struct SessionView: View {
 
     @State private var selectedNode: ProcessNode?
     @State private var isExporting = false
+    @State private var pixelsPerSecond: Double = 100.0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -67,7 +68,7 @@ struct SessionView: View {
                 case .complete:
                     if let timeline = named.session.timeline {
                         VSplitView {
-                            TimelineView(timeline: timeline, selectedNode: $selectedNode)
+                            TimelineView(timeline: timeline, selectedNode: $selectedNode, pixelsPerSecond: $pixelsPerSecond)
                                 .frame(minHeight: 200)
                             bottomPanel
                                 .frame(minHeight: 120, maxHeight: 300)
@@ -137,7 +138,7 @@ struct SessionView: View {
     private var capturingView: some View {
         ZStack {
             if let live = named.session.liveTimeline {
-                TimelineView(timeline: live, selectedNode: $selectedNode)
+                TimelineView(timeline: live, selectedNode: $selectedNode, pixelsPerSecond: $pixelsPerSecond)
                     .transition(.opacity)
                     .overlay(alignment: .top) {
                         capturingBadge
@@ -210,7 +211,7 @@ struct SessionView: View {
         isExporting = true
         Task {
             defer { isExporting = false }
-            let exportPPS = min(200.0, max(50.0, 2000.0 / max(1, timeline.totalDuration)))
+            let exportPPS = pixelsPerSecond
             guard let svgData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
 
             let panel = NSSavePanel()

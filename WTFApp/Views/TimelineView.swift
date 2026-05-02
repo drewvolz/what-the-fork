@@ -14,7 +14,7 @@ private struct ScrollOffsetPreferenceKey: PreferenceKey {
 struct TimelineView: View {
     let timeline: Timeline
     @Binding var selectedNode: ProcessNode?
-    @State private var pixelsPerSecond: Double = 100.0
+    @Binding var pixelsPerSecond: Double
     @State private var scrollOffset: CGPoint = .zero
     @State private var visibleSize: CGSize = .zero
     private let rowHeight: CGFloat = 36
