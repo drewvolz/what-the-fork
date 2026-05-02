@@ -55,4 +55,27 @@ enum ProcessClassifier {
         if shells.contains(name)       { return .shell }
         return .other
     }
+
+    /// Returns the display color for a node — uses category color for known types,
+    /// and a stable hash-derived color for "other" processes.
+    static func color(for node: ProcessNode) -> Color {
+        let category = classify(node)
+        guard category == .other else { return category.color }
+        return hashColor(for: node.commandName.lowercased())
+    }
+
+    private static func hashColor(for name: String) -> Color {
+        let palette: [Color] = [
+            Color(red: 0.55, green: 0.36, blue: 0.96),  // purple
+            Color(red: 0.13, green: 0.70, blue: 0.70),  // teal
+            Color(red: 0.93, green: 0.40, blue: 0.40),  // coral
+            Color(red: 0.20, green: 0.65, blue: 0.85),  // sky blue
+            Color(red: 0.93, green: 0.60, blue: 0.10),  // amber
+            Color(red: 0.85, green: 0.35, blue: 0.70),  // pink
+            Color(red: 0.45, green: 0.80, blue: 0.30),  // lime
+            Color(red: 0.93, green: 0.55, blue: 0.20),  // orange
+        ]
+        let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
+        return palette[abs(hash) % palette.count]
+    }
 }
