@@ -25,7 +25,7 @@ do {
     let buildPID = try BuildRunner.launch(command: command, args: commandArgs)
     print("wtf: launched \(command) as PID \(buildPID), session \(sessionID)")
 
-    try DaemonLauncher.startSession(id: sessionID, rootPID: buildPID)
+    DaemonLauncher.startSession(id: sessionID, rootPID: buildPID)
 
     AppLauncher.openApp(sessionID: sessionID, rootPID: buildPID)
 

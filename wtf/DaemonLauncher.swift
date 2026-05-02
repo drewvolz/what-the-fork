@@ -2,25 +2,30 @@
 import Foundation
 
 /// Connects to the WTFDaemon XPC service and registers a monitoring session.
+/// Non-fatal: if the daemon isn't running, prints a warning and continues.
 enum DaemonLauncher {
 
-    static func startSession(id: String, rootPID: pid_t) throws {
+    static func startSession(id: String, rootPID: pid_t) {
         let connection = NSXPCConnection(machServiceName: "com.whatthefork.daemon")
         connection.remoteObjectInterface = NSXPCInterface(with: WTFDaemonXPCProtocol.self)
         connection.resume()
 
-        let proxy = connection.remoteObjectProxyWithErrorHandler { error in
-            fputs("wtf: daemon connection error: \(error)\n", stderr)
+        let sema = DispatchSemaphore(value: 0)
+        var connected = false
+
+        let proxy = connection.remoteObjectProxyWithErrorHandler { _ in
+            sema.signal()
         } as? WTFDaemonXPCProtocol
 
-        let sema = DispatchSemaphore(value: 0)
         proxy?.startSession(id: id, rootPID: Int32(rootPID)) { success in
-            if !success {
-                fputs("wtf: daemon failed to start session\n", stderr)
-            }
+            connected = success
             sema.signal()
         }
-        sema.wait()
+
+        // Short timeout — don't block the build waiting for daemon
+        if sema.wait(timeout: .now() + 2) == .timedOut || !connected {
+            fputs("wtf: daemon not running — install it with: ./scripts/install-daemon.sh\n", stderr)
+        }
     }
 }
 
