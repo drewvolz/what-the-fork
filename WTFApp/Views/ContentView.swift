@@ -10,7 +10,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $manager.selectedID) {
             ForEach(manager.sessions) { named in
-                SessionView(named: named, onClose: {
+                SessionView(named: named, store: manager.store, onClose: {
                     manager.removeSession(id: named.id)
                 })
                 .tabItem {
@@ -42,6 +42,7 @@ struct ContentView: View {
 
 struct SessionView: View {
     @ObservedObject var named: NamedSession
+    let store: SessionStore
     let onClose: () -> Void
 
     @State private var selectedNode: ProcessNode?
@@ -127,14 +128,10 @@ struct SessionView: View {
     // MARK: Content states
 
     private var idleView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "fork.knife")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-            Text("Run a build with `wtf <command>` to visualize it here.")
-                .foregroundStyle(.secondary)
+        SessionHistoryView(store: store) { stored in
+            named.isRestored = true
+            named.session.restore(events: stored.events, rootPID: stored.rootPID)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var capturingView: some View {
