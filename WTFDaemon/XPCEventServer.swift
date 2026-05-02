@@ -92,30 +92,42 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
         }
     }
 
-    /// Flushes nil to all waiting subscribers and marks the session as ended.
+    /// Marks the session as ended and drains any pending subscribers.
+    /// Does NOT clear bufferedEvents — addSubscriber will drain the buffer
+    /// so late-arriving events are not lost for fast-completing processes.
     private func finalizeSession(_ id: String) {
         pidToSession = pidToSession.filter { $0.value != id }
         sessionRootPID.removeValue(forKey: id)
         endingSessionIDs.remove(id)
-        bufferedEvents.removeValue(forKey: id)
-        let replies = pendingReplies.removeValue(forKey: id) ?? []
-        NSLog("WTFDaemon: finalizing session %@ — flushing %d pending replies", id, replies.count)
-        replies.forEach { $0(nil) }
         endedSessions.insert(id)
+        let replies = pendingReplies.removeValue(forKey: id) ?? []
+        NSLog("WTFDaemon: finalizing session %@ — %d buffered events, flushing %d pending replies",
+              id, bufferedEvents[id]?.count ?? 0, replies.count)
+        // Drain buffered events to any waiting subscribers; fire nil only when buffer is empty.
+        for reply in replies {
+            if var buffered = bufferedEvents[id], !buffered.isEmpty {
+                let data = buffered.removeFirst()
+                bufferedEvents[id] = buffered.isEmpty ? nil : buffered
+                reply(data)
+            } else {
+                reply(nil)
+            }
+        }
     }
 
     func addSubscriber(sessionID: String, reply: @escaping (NSData?) -> Void) {
         queue.async { [weak self] in
             guard let self else { return }
-            if self.endedSessions.contains(sessionID) {
-                NSLog("WTFDaemon: late subscriber for ended session %@, resolving immediately", sessionID)
-                reply(nil)
-            } else if var buffered = self.bufferedEvents[sessionID], !buffered.isEmpty {
-                // Replay oldest buffered event immediately rather than waiting.
+            // Always drain the buffer first — even for ended sessions — so late subscribers
+            // see all buffered events before receiving the nil terminator.
+            if var buffered = self.bufferedEvents[sessionID], !buffered.isEmpty {
                 let data = buffered.removeFirst()
-                self.bufferedEvents[sessionID] = buffered
+                self.bufferedEvents[sessionID] = buffered.isEmpty ? nil : buffered
                 NSLog("WTFDaemon: replaying buffered event to new subscriber for session %@", sessionID)
                 reply(data)
+            } else if self.endedSessions.contains(sessionID) {
+                NSLog("WTFDaemon: buffer empty, session ended %@ — resolving with nil", sessionID)
+                reply(nil)
             } else {
                 self.pendingReplies[sessionID, default: []].append(reply)
             }
