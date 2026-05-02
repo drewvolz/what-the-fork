@@ -11,6 +11,18 @@ struct TimelineView: View {
     private let rowPadding: CGFloat = 4
 
     var body: some View {
+        if #available(macOS 14.0, *) {
+            scrollContent.gesture(MagnifyGesture()
+                .onChanged { value in
+                    pixelsPerSecond = max(10, min(2000, pixelsPerSecond * value.magnification))
+                }
+            )
+        } else {
+            scrollContent
+        }
+    }
+
+    private var scrollContent: some View {
         ScrollView([.horizontal, .vertical], showsIndicators: true) {
             ZStack(alignment: .topLeading) {
                 // Background time ruler
@@ -28,22 +40,13 @@ struct TimelineView: View {
             }
         }
         .background(Color(nsColor: .controlBackgroundColor))
-        if #available(macOS 14.0, *) {
-            self.gesture(MagnifyGesture()
-                .onChanged { value in
-                    pixelsPerSecond = max(10, min(2000, pixelsPerSecond * value.magnification))
-                }
-            )
-        } else {
-            self
-        }
     }
 
     @ViewBuilder
 private func nodeRow(_ node: ProcessNode, depth: Int) -> AnyView {
     let row = HStack(spacing: 0) {
         Spacer().frame(width: CGFloat(depth) * 16)
-        Spacer().frame(width: CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond))
+        Spacer().frame(width: max(0, CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond)))
         ProcessBoxView(
             node: node,
             category: ProcessClassifier.classify(node),

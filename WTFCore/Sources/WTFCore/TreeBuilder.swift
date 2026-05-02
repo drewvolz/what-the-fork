@@ -50,6 +50,18 @@ public enum TreeBuilder {
                     node.endTime = event.timestamp
                     node.exitCode = event.exitCode
                     nodes[event.pid] = node
+                } else {
+                    // ESF exec notification was missed (arrived before session registration).
+                    // Create a best-effort node from the exit event so the root still appears.
+                    nodes[event.pid] = ProcessNode(
+                        pid: event.pid,
+                        command: event.command,
+                        args: event.args,
+                        cwd: event.cwd,
+                        startTime: event.timestamp,
+                        endTime: event.timestamp,
+                        exitCode: event.exitCode
+                    )
                 }
             }
         }
