@@ -210,19 +210,16 @@ struct SessionView: View {
         isExporting = true
         Task {
             defer { isExporting = false }
-            // Yield so SwiftUI can render the "Exporting…" label before the
-            // ImageRenderer blocks the main thread.
-            try? await Task.sleep(nanoseconds: 50_000_000)
             let exportPPS = min(200.0, max(50.0, 2000.0 / max(1, timeline.totalDuration)))
-            guard let pngData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
+            guard let svgData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
 
             let panel = NSSavePanel()
-            panel.allowedContentTypes = [.png]
-            panel.nameFieldStringValue = "build-timeline.png"
+            panel.allowedContentTypes = [UTType.svg]
+            panel.nameFieldStringValue = "build-timeline.svg"
             panel.directoryURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
             panel.title = "Export Timeline"
             guard panel.runModal() == .OK, let url = panel.url else { return }
-            try? pngData.write(to: url)
+            try? svgData.write(to: url)
         }
     }
 }
