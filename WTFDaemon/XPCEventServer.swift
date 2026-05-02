@@ -163,8 +163,10 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
             case "exit":
                 sessionID = self.pidToSession.removeValue(forKey: pid)
                 NSLog("WTFDaemon: exit pid=%d → session=%@", pid, sessionID ?? "untracked")
-                // If this exit completes a deferred endSession, finalize now.
-                if let sid = sessionID, self.endingSessionIDs.contains(sid) {
+                // Only finalize when the ROOT process exits, not any child.
+                if let sid = sessionID,
+                   self.endingSessionIDs.contains(sid),
+                   self.sessionRootPID[sid] == pid {
                     self.enqueue(event, to: sid)
                     self.finalizeSession(sid)
                     return
