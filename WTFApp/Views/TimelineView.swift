@@ -137,19 +137,42 @@ struct TimelineView: View {
     private func nodeRow(_ node: ProcessNode, depth: Int) -> AnyView {
         AnyView(
             VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 0) {
-                    Spacer().frame(width: CGFloat(depth) * 16)
-                    Spacer().frame(width: max(0, CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond)))
-                    ProcessBoxView(
-                        node: node,
-                        pixelsPerSecond: pixelsPerSecond,
-                        isSelected: selectedNode?.id == node.id,
-                        isOnCriticalPath: criticalPathIDs.contains(node.id),
-                        onSelect: { selectedNode = node }
-                    )
-                    Spacer()
+                ZStack(alignment: .topLeading) {
+                    // Connector line + tick for non-root rows.
+                    if depth > 0 {
+                        Canvas { context, size in
+                            let connX = CGFloat(depth - 1) * 16 + 8
+                            // Vertical segment spanning the full row height.
+                            let vPath = Path { p in
+                                p.move(to: CGPoint(x: connX, y: 0))
+                                p.addLine(to: CGPoint(x: connX, y: size.height))
+                            }
+                            context.stroke(vPath, with: .color(.secondary.opacity(0.3)), lineWidth: 1)
+                            // Horizontal tick from connector to the indent start.
+                            let hPath = Path { p in
+                                p.move(to: CGPoint(x: connX, y: size.height / 2))
+                                p.addLine(to: CGPoint(x: connX + 8, y: size.height / 2))
+                            }
+                            context.stroke(hPath, with: .color(.secondary.opacity(0.3)), lineWidth: 1)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .allowsHitTesting(false)
+                    }
+
+                    HStack(spacing: 0) {
+                        Spacer().frame(width: CGFloat(depth) * 16)
+                        Spacer().frame(width: max(0, CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond)))
+                        ProcessBoxView(
+                            node: node,
+                            pixelsPerSecond: pixelsPerSecond,
+                            isSelected: selectedNode?.id == node.id,
+                            isOnCriticalPath: criticalPathIDs.contains(node.id),
+                            onSelect: { selectedNode = node }
+                        )
+                        Spacer()
+                    }
+                    .frame(height: rowHeight)
                 }
-                .frame(height: rowHeight)
 
                 ForEach(node.children, id: \.id) { child in
                     nodeRow(child, depth: depth + 1)
