@@ -76,6 +76,6 @@ enum ProcessClassifier {
             Color(red: 0.93, green: 0.55, blue: 0.20),  // orange
         ]
         let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
-        return palette[abs(hash) % palette.count]
+        return palette[Int(hash.magnitude) % palette.count]
     }
 }
