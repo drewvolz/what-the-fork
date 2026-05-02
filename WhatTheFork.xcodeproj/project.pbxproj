@@ -21,6 +21,7 @@
 		2F55349EEB5CD5E5ACAACB92 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9321EEE0AC7135ADE0B909 /* main.swift */; };
 		39158B4A845554BBE6B26136 /* MinimapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E259B93DF7A959565272ED0A /* MinimapView.swift */; };
 		A1B2C3D4E5F67890A1B2C3D4 /* MinimapThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978801F2E3D4 /* MinimapThumbnailView.swift */; };
+		B2C3D4E5F6789001B2C3D4E5 /* SessionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F678900112C3D4E5F6 /* SessionHistoryView.swift */; };
 		57A63DA6FC9018FA2AF89F1C /* BuildSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B130E57647CCC9AD672B33A /* BuildSession.swift */; };
 		6FE59C8A06235B80F8967D22 /* BuildRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5A3447E11A2C1A60CFBBCC /* BuildRunner.swift */; };
 		7A5008EBF147F5A167C17682 /* libbsm.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CC877F53E8382418D98FC279 /* libbsm.tbd */; };
@@ -71,6 +72,7 @@
 		E23957FB4DF82F87A2927C7A /* AppLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLauncher.swift; sourceTree = "<group>"; };
 		E259B93DF7A959565272ED0A /* MinimapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimapView.swift; sourceTree = "<group>"; };
 		F1E2D3C4B5A6978801F2E3D4 /* MinimapThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimapThumbnailView.swift; sourceTree = "<group>"; };
+		C3D4E5F678900112C3D4E5F6 /* SessionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionHistoryView.swift; sourceTree = "<group>"; };
 		E5E64720D0265E2A2F836E14 /* WTFDaemon.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WTFDaemon.entitlements; sourceTree = "<group>"; };
 		EAFADFE621AC4D9163425B89 /* TimelineExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineExporter.swift; sourceTree = "<group>"; };
 		F777CDF87F1E41E64B3F73D3 /* ConcurrencyChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrencyChartView.swift; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 				C8ED65E69B96F2F22C588BE5 /* ContentView.swift */,
 				E259B93DF7A959565272ED0A /* MinimapView.swift */,
 				F1E2D3C4B5A6978801F2E3D4 /* MinimapThumbnailView.swift */,
+				C3D4E5F678900112C3D4E5F6 /* SessionHistoryView.swift */,
 				0A4B881FFB83529D6E8947C4 /* ProcessBoxView.swift */,
 				39560C8B8C3E73087B9312BF /* ProcessDetailPanel.swift */,
 				3DD8B0B07370A17A9D8E0600 /* TimelineView.swift */,
@@ -327,6 +330,7 @@
 				A03568033841AAEB67A5E356 /* ContentView.swift in Sources */,
 				39158B4A845554BBE6B26136 /* MinimapView.swift in Sources */,
 				A1B2C3D4E5F67890A1B2C3D4 /* MinimapThumbnailView.swift in Sources */,
+				B2C3D4E5F6789001B2C3D4E5 /* SessionHistoryView.swift in Sources */,
 				1FAF58920DE4577080CBDF6E /* NamedSession.swift in Sources */,
 				A6910F0CAF6CAA83D8982EF8 /* ProcessBoxView.swift in Sources */,
 				9B9DAA776CC54BF2657B6E57 /* ProcessClassifier.swift in Sources */,
