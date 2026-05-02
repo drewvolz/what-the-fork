@@ -62,8 +62,21 @@ struct ProcessBoxView: View {
                 .allowsHitTesting(false)
         }
         .frame(width: width, height: 32)
-        .popover(isPresented: $isShowingTooltip) {
-            tooltipView
+        // Rendered as an overlay inside the ScrollView so it scrolls with the node.
+        // A popover (NSPanel) would stay fixed on screen while content scrolls away.
+        .overlay(alignment: .top) {
+            if isShowingTooltip {
+                tooltipView
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+                    )
+                    .shadow(color: .black.opacity(0.18), radius: 8, y: -2)
+                    .fixedSize()
+                    // Shift the card upward so it sits above the node rather than overlapping it.
+                    .alignmentGuide(.top) { d in d[.bottom] + 8 }
+            }
         }
     }
 

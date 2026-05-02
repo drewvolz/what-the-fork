@@ -180,6 +180,8 @@ struct TimelineView: View {
 
                 gapAndRow(node.children, depth: depth + 1, parentEndTime: node.endTime ?? node.startTime)
             }
+            // Lift selected node above siblings so its tooltip card renders on top.
+            .zIndex(selectedNode?.id == node.id ? 100 : 0)
         )
     }
 
