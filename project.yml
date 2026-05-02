@@ -1,0 +1,62 @@
+name: WhatTheFork
+options:
+  bundleIdPrefix: com.whatthefork
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+
+packages:
+  WTFCore:
+    path: .
+
+targets:
+
+  WhatTheFork:
+    type: application
+    platform: macOS
+    sources:
+      - path: WTFApp
+    dependencies:
+      - package: WTFCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.whatthefork.app
+        SWIFT_VERSION: 5.9
+        MACOSX_DEPLOYMENT_TARGET: 13.0
+        CODE_SIGN_ENTITLEMENTS: WTFApp/WhatTheFork.entitlements
+    entitlements:
+      path: WTFApp/WhatTheFork.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.automation.apple-events: true
+
+  WTFDaemon:
+    type: tool
+    platform: macOS
+    sources:
+      - path: WTFDaemon
+    dependencies:
+      - package: WTFCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.whatthefork.daemon
+        SWIFT_VERSION: 5.9
+        MACOSX_DEPLOYMENT_TARGET: 13.0
+        CODE_SIGN_ENTITLEMENTS: WTFDaemon/WTFDaemon.entitlements
+    entitlements:
+      path: WTFDaemon/WTFDaemon.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.developer.endpoint-security.client: true
+
+  wtf:
+    type: tool
+    platform: macOS
+    sources:
+      - path: wtf
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.whatthefork.cli
+        SWIFT_VERSION: 5.9
+        MACOSX_DEPLOYMENT_TARGET: 13.0
