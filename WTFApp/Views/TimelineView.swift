@@ -136,7 +136,7 @@ struct TimelineView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private func nodeRow(_ node: ProcessNode, depth: Int, parentEndTime: TimeInterval? = nil) -> AnyView {
+    private func nodeRow(_ node: ProcessNode, depth: Int, parentEndTime: TimeInterval? = nil, isLastSibling: Bool = false) -> AnyView {
         let waitT = parentEndTime.map { max(0.0, node.startTime - $0) } ?? 0.0
         return AnyView(
             VStack(alignment: .leading, spacing: 0) {
@@ -145,18 +145,17 @@ struct TimelineView: View {
                     if depth > 0 {
                         Canvas { context, size in
                             let connX = CGFloat(depth - 1) * 16 + 8
-                            // Vertical segment spanning the full row height.
-                            let vPath = Path { p in
+                            let midY = size.height / 2
+                            let vEndY = isLastSibling ? midY : size.height
+                            let path = Path { p in
+                                // Vertical segment (full height for T-junction, half-height for last-child elbow)
                                 p.move(to: CGPoint(x: connX, y: 0))
-                                p.addLine(to: CGPoint(x: connX, y: size.height))
+                                p.addLine(to: CGPoint(x: connX, y: vEndY))
+                                // Horizontal tick from connector to indent start
+                                p.move(to: CGPoint(x: connX, y: midY))
+                                p.addLine(to: CGPoint(x: connX + 8, y: midY))
                             }
-                            context.stroke(vPath, with: .color(.secondary.opacity(0.3)), lineWidth: 1)
-                            // Horizontal tick from connector to the indent start.
-                            let hPath = Path { p in
-                                p.move(to: CGPoint(x: connX, y: size.height / 2))
-                                p.addLine(to: CGPoint(x: connX + 8, y: size.height / 2))
-                            }
-                            context.stroke(hPath, with: .color(.secondary.opacity(0.3)), lineWidth: 1)
+                            context.stroke(path, with: .color(.secondary.opacity(0.3)), lineWidth: 1)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .allowsHitTesting(false)
@@ -219,7 +218,7 @@ struct TimelineView: View {
     @ViewBuilder
     private func gapAndRow(_ children: [ProcessNode], depth: Int, parentEndTime: TimeInterval) -> some View {
         ForEach(children.indices, id: \.self) { i in
-            nodeRow(children[i], depth: depth, parentEndTime: parentEndTime)
+            nodeRow(children[i], depth: depth, parentEndTime: parentEndTime, isLastSibling: i == children.indices.last)
             if i + 1 < children.count {
                 let childEnd = children[i].endTime ?? children[i].startTime
                 let gap = children[i + 1].startTime - childEnd
