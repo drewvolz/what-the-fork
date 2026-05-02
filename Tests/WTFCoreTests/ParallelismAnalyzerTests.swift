@@ -54,4 +54,18 @@ final class ParallelismAnalyzerTests: XCTestCase {
         XCTAssertLessThanOrEqual(metrics.score, 1.0)
         XCTAssertGreaterThanOrEqual(metrics.score, 0.0)
     }
+    func testEmptyTimeline_scoreIsZero() {
+        let root = ProcessNode(pid: 1, command: "/make", startTime: 0, endTime: nil)
+        let timeline = Timeline(rootNode: root, startTime: 0, totalDuration: 0)
+        let metrics = ParallelismAnalyzer.analyzeParallelism(timeline, cpuCoreCount: 4)
+        XCTAssertEqual(metrics.score, 0.0)
+        XCTAssertTrue(metrics.timeline.isEmpty)
+    }
+
+    func testZeroCoreCount_scoreIsZero() {
+        let root = ProcessNode(pid: 1, command: "/make", startTime: 0, endTime: 10)
+        let timeline = Timeline(rootNode: root, startTime: 0, totalDuration: 10)
+        let metrics = ParallelismAnalyzer.analyzeParallelism(timeline, cpuCoreCount: 0)
+        XCTAssertEqual(metrics.score, 0.0)
+    }
 }
