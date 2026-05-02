@@ -35,4 +35,14 @@ final class CriticalPathFinderTests: XCTestCase {
         XCTAssertEqual(path.first?.id, 1)
         XCTAssertEqual(path.last?.id, 2)
     }
+
+    func testLaterStartingChild_withLaterEndTime_isOnCriticalPath() {
+        // B starts later but ends later — it's the true bottleneck
+        let a = ProcessNode(pid: 2, command: "/cc", startTime: 0, endTime: 7)
+        let b = ProcessNode(pid: 3, command: "/cc", startTime: 5, endTime: 9)
+        let root = ProcessNode(pid: 1, command: "/make", startTime: 0, endTime: 9, children: [a, b])
+        let path = CriticalPathFinder.findCriticalPath(root)
+        XCTAssertTrue(path.map(\.id).contains(3), "Child ending latest must be on critical path")
+        XCTAssertFalse(path.map(\.id).contains(2))
+    }
 }

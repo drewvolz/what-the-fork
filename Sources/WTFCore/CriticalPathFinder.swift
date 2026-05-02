@@ -14,16 +14,19 @@ public enum CriticalPathFinder {
     private static func longestPath(_ node: ProcessNode) -> [ProcessNode] {
         guard !node.children.isEmpty else { return [node] }
 
-        // Find the child whose subtree has the greatest total duration
+        // Find the child whose subtree ends latest in absolute time.
+        // Using absolute endTime (not duration) because a child that starts
+        // later but finishes later is the true bottleneck.
         let childPaths = node.children.map { longestPath($0) }
-        let longestChild = childPaths.max { pathDuration($0) < pathDuration($1) } ?? []
+        let longestChild = childPaths.max { pathEndTime($0) < pathEndTime($1) } ?? []
 
         return [node] + longestChild
     }
 
-    private static func pathDuration(_ path: [ProcessNode]) -> TimeInterval {
-        guard let first = path.first, let last = path.last else { return 0 }
-        let end = last.endTime ?? last.startTime
-        return end - first.startTime
+    // The absolute end time of the last node on a path.
+    // Nil endTime (still-running process) falls back to startTime (zero additional duration).
+    private static func pathEndTime(_ path: [ProcessNode]) -> TimeInterval {
+        guard let last = path.last else { return 0 }
+        return last.endTime ?? last.startTime
     }
 }

@@ -17,11 +17,11 @@ public enum GapDetector {
         let processes = timeline.allProcesses.filter { $0.endTime != nil && $0.children.isEmpty }
         guard !processes.isEmpty else { return [] }
 
-        // Collect all (start, end) intervals sorted by start time
+        // Collect all (start, end) intervals sorted by start time.
+        // All processes here have non-nil endTime (guaranteed by the filter above).
         let intervals = processes
-            .compactMap { p -> (TimeInterval, TimeInterval, ProcessNode)? in
-                guard let end = p.endTime else { return nil }
-                return (p.startTime, end, p)
+            .map { p -> (TimeInterval, TimeInterval, ProcessNode) in
+                return (p.startTime, p.endTime!, p)
             }
             .sorted { $0.0 < $1.0 }
 
@@ -48,24 +48,23 @@ public enum GapDetector {
             let duration = gapEnd - gapStart
             guard duration >= threshold else { continue }
 
-            // Find the process that ended most recently before the gap
+            // Find the process that ended most recently before the gap.
+            // endTime is non-nil here (guaranteed by the leaf filter).
             let preceding = processes
-                .filter { ($0.endTime ?? 0) <= gapStart }
-                .max(by: { ($0.endTime ?? 0) < ($1.endTime ?? 0) })
+                .filter { $0.endTime! <= gapStart }
+                .max(by: { $0.endTime! < $1.endTime! })
 
             // Find the process that starts next after the gap
             let following = processes
                 .filter { $0.startTime >= gapEnd - 1e-9 }
                 .min(by: { $0.startTime < $1.startTime })
 
-            if preceding != nil || following != nil {
-                gaps.append(GapReport(
-                    startTime: gapStart,
-                    duration: duration,
-                    precedingProcess: preceding,
-                    followingProcess: following
-                ))
-            }
+            gaps.append(GapReport(
+                startTime: gapStart,
+                duration: duration,
+                precedingProcess: preceding,
+                followingProcess: following
+            ))
         }
 
         return gaps
