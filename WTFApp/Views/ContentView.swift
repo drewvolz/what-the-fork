@@ -100,8 +100,13 @@ struct SessionView: View {
             }
             if case .complete = named.session.state, named.session.timeline != nil {
                 Button(action: exportTimeline) {
-                    Label("Export", systemImage: "square.and.arrow.up")
-                        .font(.subheadline)
+                    if isExporting {
+                        Label("Exporting…", systemImage: "hourglass")
+                            .font(.subheadline)
+                    } else {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                            .font(.subheadline)
+                    }
                 }
                 .buttonStyle(.borderless)
                 .disabled(isExporting)
@@ -205,6 +210,9 @@ struct SessionView: View {
         isExporting = true
         Task {
             defer { isExporting = false }
+            // Yield so SwiftUI can render the "Exporting…" label before the
+            // ImageRenderer blocks the main thread.
+            try? await Task.sleep(nanoseconds: 50_000_000)
             let exportPPS = min(200.0, max(50.0, 2000.0 / max(1, timeline.totalDuration)))
             guard let pngData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
 

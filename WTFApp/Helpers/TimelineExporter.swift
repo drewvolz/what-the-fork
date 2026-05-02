@@ -54,6 +54,8 @@ enum TimelineExporter {
 }
 
 /// A non-scrolling, non-interactive view of the full timeline used for export.
+/// Uses a flat ForEach instead of recursive AnyView to keep SwiftUI layout O(n)
+/// rather than O(n²) for large process trees.
 private struct ExportableTimelineView: View {
     let timeline: Timeline
     let pixelsPerSecond: Double
@@ -68,13 +70,28 @@ private struct ExportableTimelineView: View {
     }
 
     var body: some View {
+        let rows = flatRows
         ZStack(alignment: .topLeading) {
             Color(nsColor: .controlBackgroundColor)
 
             TimeRulerView(totalDuration: timeline.totalDuration, pixelsPerSecond: pixelsPerSecond)
 
             VStack(alignment: .leading, spacing: rowPadding) {
-                nodeRow(timeline.rootNode, depth: 0)
+                ForEach(rows, id: \.node.id) { row in
+                    HStack(spacing: 0) {
+                        Spacer().frame(width: CGFloat(row.depth) * 16)
+                        Spacer().frame(width: max(0, CGFloat((row.node.startTime - timeline.startTime) * pixelsPerSecond)))
+                        ProcessBoxView(
+                            node: row.node,
+                            pixelsPerSecond: pixelsPerSecond,
+                            isSelected: false,
+                            alwaysShowLabel: true,
+                            onSelect: {}
+                        )
+                        Spacer()
+                    }
+                    .frame(height: rowHeight)
+                }
             }
             .padding(.top, 24)
             .padding(.bottom, 8)
@@ -83,28 +100,24 @@ private struct ExportableTimelineView: View {
         .fixedSize()
     }
 
-    private func nodeRow(_ node: ProcessNode, depth: Int) -> AnyView {
-        AnyView(
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 0) {
-                    Spacer().frame(width: CGFloat(depth) * 16)
-                    Spacer().frame(width: max(0, CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond)))
-                    ProcessBoxView(
-                        node: node,
-                        pixelsPerSecond: pixelsPerSecond,
-                        isSelected: false,
-                        alwaysShowLabel: true,
-                        onSelect: {}
-                    )
-                    Spacer()
-                }
-                .frame(height: rowHeight)
+    // MARK: - Flat layout helpers
 
-                ForEach(node.children, id: \.id) { child in
-                    nodeRow(child, depth: depth + 1)
-                }
-            }
-        )
+    private struct FlatRow {
+        let node: ProcessNode
+        let depth: Int
+    }
+
+    private var flatRows: [FlatRow] {
+        var result: [FlatRow] = []
+        flatten(timeline.rootNode, depth: 0, into: &result)
+        return result
+    }
+
+    private func flatten(_ node: ProcessNode, depth: Int, into result: inout [FlatRow]) {
+        result.append(FlatRow(node: node, depth: depth))
+        for child in node.children {
+            flatten(child, depth: depth + 1, into: &result)
+        }
     }
 }
 
