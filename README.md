@@ -1,4 +1,4 @@
-# What the Fork 🍴
+# What the Fork 
 
 A macOS-native tool that visualizes your build process as an interactive timeline, so you can spot slowdowns, serial bottlenecks, and wasted work.
 
