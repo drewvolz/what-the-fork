@@ -64,9 +64,9 @@ private struct ExportableTimelineView: View {
                     Spacer().frame(width: max(0, CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond)))
                     ProcessBoxView(
                         node: node,
-                        category: ProcessClassifier.classify(node),
                         pixelsPerSecond: pixelsPerSecond,
                         isSelected: false,
+                        alwaysShowLabel: true,
                         onSelect: {}
                     )
                     Spacer()

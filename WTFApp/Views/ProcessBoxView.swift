@@ -5,10 +5,19 @@ import WTFCore
 /// A single colored box representing a process in the timeline.
 struct ProcessBoxView: View {
     let node: ProcessNode
-    let category: ProcessCategory
     let pixelsPerSecond: Double
     let isSelected: Bool
+    let alwaysShowLabel: Bool
     let onSelect: () -> Void
+
+    init(node: ProcessNode, pixelsPerSecond: Double, isSelected: Bool,
+         alwaysShowLabel: Bool = false, onSelect: @escaping () -> Void) {
+        self.node = node
+        self.pixelsPerSecond = pixelsPerSecond
+        self.isSelected = isSelected
+        self.alwaysShowLabel = alwaysShowLabel
+        self.onSelect = onSelect
+    }
 
     private var width: CGFloat {
         let dur = (node.endTime ?? node.startTime + 0.05) - node.startTime
@@ -16,9 +25,10 @@ struct ProcessBoxView: View {
     }
 
     var body: some View {
+        let color = ProcessClassifier.color(for: node)
         RoundedRectangle(cornerRadius: 3)
-            .fill(category.color.opacity(isSelected ? 1.0 : 0.75))
-            .frame(width: width, height: 22)
+            .fill(color.opacity(isSelected ? 1.0 : 0.75))
+            .frame(width: width, height: 32)
             .overlay(labelOverlay, alignment: .leading)
             .overlay(
                 RoundedRectangle(cornerRadius: 3)
@@ -30,30 +40,21 @@ struct ProcessBoxView: View {
 
     @ViewBuilder
     private var labelOverlay: some View {
-        if width >= 20, let label = labelText(for: width) {
+        if let label = labelText(for: width) {
             Text(label)
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .padding(.horizontal, 3)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 4)
         }
     }
 
-    /// Returns the label string appropriate for the current node width, or nil if too narrow.
     private func labelText(for width: CGFloat) -> String? {
-        switch width {
-        case ..<20:
-            return nil
-        case 20..<60:
-            // Show up to 4 characters as a hint
-            return String(node.commandName.prefix(4))
-        case 60..<120:
-            return node.commandName
-        default:
-            // Wide enough: show name + duration
-            return "\(node.commandName) — \(formattedDuration)"
-        }
+        guard alwaysShowLabel || width >= 8 else { return nil }
+        if width >= 120 { return "\(node.commandName) — \(formattedDuration)" }
+        return node.commandName
     }
 
     private var formattedDuration: String {

@@ -125,7 +125,6 @@ struct TimelineView: View {
                     Spacer().frame(width: max(0, CGFloat((node.startTime - timeline.startTime) * pixelsPerSecond)))
                     ProcessBoxView(
                         node: node,
-                        category: ProcessClassifier.classify(node),
                         pixelsPerSecond: pixelsPerSecond,
                         isSelected: selectedNode?.id == node.id,
                         onSelect: { selectedNode = node }
