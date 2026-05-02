@@ -11,6 +11,11 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
     private var activeSessions: Set<String> = []
     /// Maps each tracked PID → the session it belongs to.
     private var pidToSession: [pid_t: String] = [:]
+    /// Maps each session → its root PID (the process directly launched by `wtf`).
+    private var sessionRootPID: [String: pid_t] = [:]
+    /// Sessions where endSession was called but whose root PID hasn't exited via ESF yet.
+    /// We hold off flushing nil until the EXIT event arrives so subscribers see it.
+    private var endingSessionIDs: Set<String> = []
     /// Pending long-poll reply blocks waiting for the next event.
     private var pendingReplies: [String: [(NSData?) -> Void]] = [:]
     /// Sessions that have ended — late subscribers get immediate nil.
@@ -41,6 +46,7 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
             guard let self else { return }
             NSLog("WTFDaemon: startSession id=%@ rootPID=%d", id, rootPID)
             self.activeSessions.insert(id)
+            self.sessionRootPID[id] = pid_t(rootPID)
             self.pidToSession[pid_t(rootPID)] = id
         }
     }
@@ -49,15 +55,27 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
         queue.async { [weak self] in
             guard let self else { return }
             NSLog("WTFDaemon: endSession id=%@", id)
-            // Remove PID mappings for this session
-            self.pidToSession = self.pidToSession.filter { $0.value != id }
             self.activeSessions.remove(id)
-            // Flush all waiting subscribers with nil to signal completion
-            let replies = self.pendingReplies.removeValue(forKey: id) ?? []
-            NSLog("WTFDaemon: flushing %d pending replies", replies.count)
-            replies.forEach { $0(nil) }
-            self.endedSessions.insert(id)
+            // If the root PID hasn't exited via ESF yet, defer the nil-flush until
+            // its EXIT event arrives (so subscribers see the exit event first).
+            if let rootPID = self.sessionRootPID[id], self.pidToSession[rootPID] != nil {
+                NSLog("WTFDaemon: deferring finalize for %@ — waiting for ESF exit of pid %d", id, rootPID)
+                self.endingSessionIDs.insert(id)
+            } else {
+                self.finalizeSession(id)
+            }
         }
+    }
+
+    /// Flushes nil to all waiting subscribers and marks the session as ended.
+    private func finalizeSession(_ id: String) {
+        pidToSession = pidToSession.filter { $0.value != id }
+        sessionRootPID.removeValue(forKey: id)
+        endingSessionIDs.remove(id)
+        let replies = pendingReplies.removeValue(forKey: id) ?? []
+        NSLog("WTFDaemon: finalizing session %@ — flushing %d pending replies", id, replies.count)
+        replies.forEach { $0(nil) }
+        endedSessions.insert(id)
     }
 
     func addSubscriber(sessionID: String, reply: @escaping (NSData?) -> Void) {
@@ -88,11 +106,21 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
                 if let parentSession = self.pidToSession[ppid] {
                     self.pidToSession[pid] = parentSession
                     sessionID = parentSession
+                    NSLog("WTFDaemon: fork pid=%d ppid=%d → session %@", pid, ppid, parentSession)
                 }
-            case "exec", "exit":
+            case "exec":
                 sessionID = self.pidToSession[pid]
-                if event.type == "exit" {
-                    self.pidToSession.removeValue(forKey: pid)
+                if let sid = sessionID {
+                    NSLog("WTFDaemon: exec pid=%d cmd=%@ → session %@", pid, event.command, sid)
+                }
+            case "exit":
+                sessionID = self.pidToSession.removeValue(forKey: pid)
+                NSLog("WTFDaemon: exit pid=%d → session=%@", pid, sessionID ?? "untracked")
+                // If this exit completes a deferred endSession, finalize now.
+                if let sid = sessionID, self.endingSessionIDs.contains(sid) {
+                    self.broadcast(event, to: sid)
+                    self.finalizeSession(sid)
+                    return
                 }
             default:
                 break
@@ -104,7 +132,11 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
     }
 
     private func broadcast(_ event: ESFClient.ProcessEventData, to sessionID: String) {
-        guard var replies = pendingReplies[sessionID], !replies.isEmpty else { return }
+        guard var replies = pendingReplies[sessionID], !replies.isEmpty else {
+            NSLog("WTFDaemon: broadcast type=%@ pid=%d — no pending subscriber for session %@", event.type, event.pid, sessionID)
+            return
+        }
+        NSLog("WTFDaemon: broadcast type=%@ pid=%d → session %@", event.type, event.pid, sessionID)
         let dict: [String: Any] = [
             "type": event.type,
             "pid": event.pid,

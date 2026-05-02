@@ -23,6 +23,7 @@ final class BuildSession: ObservableObject {
 
     /// Start receiving events for a session.
     func startCapture(sessionID: String, rootPID: Int) {
+        xpcClient?.disconnect()
         self.rootPID = rootPID
         state = .capturing
         liveEvents = []
