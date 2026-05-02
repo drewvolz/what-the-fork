@@ -1,11 +1,13 @@
 // WTFApp/Views/ContentView.swift
 import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
 import WTFCore
-// import panels are not needed; SwiftUI will find them in same target
 
 struct ContentView: View {
     @StateObject private var session = BuildSession()
     @State private var selectedNode: ProcessNode?
+    @State private var isExporting = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -60,6 +62,15 @@ struct ContentView: View {
                 .foregroundStyle(analysis.parallelismScore < 0.3 ? .red : .secondary)
                 .font(.subheadline)
             }
+            if case .complete = session.state, session.timeline != nil {
+                Button(action: exportTimeline) {
+                    Label("Export", systemImage: "square.and.arrow.up")
+                        .font(.subheadline)
+                }
+                .buttonStyle(.borderless)
+                .disabled(isExporting)
+                .help("Export timeline as PNG")
+            }
         }
     }
 
@@ -110,6 +121,25 @@ struct ContentView: View {
                 AnalysisPanel(analysis: analysis)
                     .frame(minWidth: 250)
             }
+        }
+    }
+
+    private func exportTimeline() {
+        guard let timeline = session.timeline else { return }
+        isExporting = true
+        Task {
+            defer { isExporting = false }
+            // Use a reasonable export zoom: fit the timeline to ~2000px wide (readable)
+            let exportPPS = min(200.0, max(50.0, 2000.0 / max(1, timeline.totalDuration)))
+            guard let pngData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
+
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.png]
+            panel.nameFieldStringValue = "build-timeline.png"
+            panel.directoryURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
+            panel.title = "Export Timeline"
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            try? pngData.write(to: url)
         }
     }
 
