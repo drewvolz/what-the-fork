@@ -5,13 +5,50 @@ import UniformTypeIdentifiers
 import WTFCore
 
 struct ContentView: View {
-    @StateObject private var session = BuildSession()
+    @StateObject private var manager = SessionManager()
+
+    var body: some View {
+        TabView(selection: $manager.selectedID) {
+            ForEach(manager.sessions) { named in
+                SessionView(named: named, onClose: {
+                    manager.removeSession(id: named.id)
+                })
+                .tabItem {
+                    Label(named.label, systemImage: named.systemImageName)
+                }
+                .tag(named.id)
+            }
+        }
+        .onOpenURL { url in
+            handleIncomingURL(url)
+        }
+    }
+
+    private func handleIncomingURL(_ url: URL) {
+        guard
+            url.scheme == "whatthefork",
+            url.host == "session",
+            let sessionID = url.pathComponents.dropFirst().first,
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+            let pidStr = components.queryItems?.first(where: { $0.name == "rootPID" })?.value,
+            let rootPID = Int(pidStr)
+        else { return }
+
+        manager.addSession(sessionID: sessionID, rootPID: rootPID)
+    }
+}
+
+// MARK: - Per-session view
+
+struct SessionView: View {
+    @ObservedObject var named: NamedSession
+    let onClose: () -> Void
+
     @State private var selectedNode: ProcessNode?
     @State private var isExporting = false
 
     var body: some View {
         VStack(spacing: 0) {
-            // Toolbar
             toolbarView
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
@@ -20,7 +57,7 @@ struct ContentView: View {
             Divider()
 
             Group {
-                switch session.state {
+                switch named.session.state {
                 case .idle:
                     idleView
 
@@ -28,7 +65,7 @@ struct ContentView: View {
                     capturingView
 
                 case .complete:
-                    if let timeline = session.timeline {
+                    if let timeline = named.session.timeline {
                         VSplitView {
                             TimelineView(timeline: timeline, selectedNode: $selectedNode)
                                 .frame(minHeight: 200)
@@ -42,10 +79,9 @@ struct ContentView: View {
                 }
             }
         }
-        .onOpenURL { url in
-            handleIncomingURL(url)
-        }
     }
+
+    // MARK: Toolbar
 
     private var toolbarView: some View {
         HStack {
@@ -54,7 +90,7 @@ struct ContentView: View {
             Text("What the Fork")
                 .font(.headline)
             Spacer()
-            if case .complete = session.state, let analysis = session.analysis {
+            if case .complete = named.session.state, let analysis = named.session.analysis {
                 Label(
                     String(format: "Parallelism: %.0f%%", analysis.parallelismScore * 100),
                     systemImage: "cpu"
@@ -62,7 +98,7 @@ struct ContentView: View {
                 .foregroundStyle(analysis.parallelismScore < 0.3 ? .red : .secondary)
                 .font(.subheadline)
             }
-            if case .complete = session.state, session.timeline != nil {
+            if case .complete = named.session.state, named.session.timeline != nil {
                 Button(action: exportTimeline) {
                     Label("Export", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
@@ -71,8 +107,16 @@ struct ContentView: View {
                 .disabled(isExporting)
                 .help("Export timeline as PNG")
             }
+            Button(action: onClose) {
+                Image(systemName: "xmark.circle")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.borderless)
+            .help("Close this session")
         }
     }
+
+    // MARK: Content states
 
     private var idleView: some View {
         VStack(spacing: 16) {
@@ -86,17 +130,45 @@ struct ContentView: View {
     }
 
     private var capturingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-            Text("Capturing build…")
-                .foregroundStyle(.secondary)
-            if !session.liveEvents.isEmpty {
-                Text("\(session.liveEvents.count) events received")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+        ZStack {
+            if let live = named.session.liveTimeline {
+                TimelineView(timeline: live, selectedNode: $selectedNode)
+                    .transition(.opacity)
+                    .overlay(alignment: .top) {
+                        capturingBadge
+                    }
+            } else {
+                VStack(spacing: 16) {
+                    ProgressView()
+                    Text("Capturing build…")
+                        .foregroundStyle(.secondary)
+                    if !named.session.liveEvents.isEmpty {
+                        Text("\(named.session.liveEvents.count) events received")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.opacity)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeInOut(duration: 0.3), value: named.session.liveTimeline != nil)
+    }
+
+    private var capturingBadge: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(.red)
+                .frame(width: 8, height: 8)
+            Text("Capturing — \(named.session.liveEvents.count) events")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(.bar)
+        .clipShape(Capsule())
+        .padding(.top, 30)
     }
 
     private func errorView(_ message: String) -> some View {
@@ -112,24 +184,27 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    // MARK: Bottom panel
+
     @ViewBuilder
     private var bottomPanel: some View {
         HSplitView {
             ProcessDetailPanel(node: selectedNode)
                 .frame(minWidth: 250)
-            if let analysis = session.analysis {
+            if let analysis = named.session.analysis {
                 AnalysisPanel(analysis: analysis)
                     .frame(minWidth: 250)
             }
         }
     }
 
+    // MARK: Export
+
     private func exportTimeline() {
-        guard let timeline = session.timeline else { return }
+        guard let timeline = named.session.timeline else { return }
         isExporting = true
         Task {
             defer { isExporting = false }
-            // Use a reasonable export zoom: fit the timeline to ~2000px wide (readable)
             let exportPPS = min(200.0, max(50.0, 2000.0 / max(1, timeline.totalDuration)))
             guard let pngData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS) else { return }
 
@@ -141,20 +216,6 @@ struct ContentView: View {
             guard panel.runModal() == .OK, let url = panel.url else { return }
             try? pngData.write(to: url)
         }
-    }
-
-    private func handleIncomingURL(_ url: URL) {
-        // Expected: whatthefork://session/<sessionID>?rootPID=<pid>
-        guard
-            url.scheme == "whatthefork",
-            url.host == "session",
-            let sessionID = url.pathComponents.dropFirst().first,
-            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-            let pidStr = components.queryItems?.first(where: { $0.name == "rootPID" })?.value,
-            let rootPID = Int(pidStr)
-        else { return }
-
-        session.startCapture(sessionID: sessionID, rootPID: rootPID)
     }
 }
 
