@@ -13,21 +13,35 @@ enum TimelineExporter {
     static func render(timeline: Timeline, pixelsPerSecond: Double) -> Data? {
         guard timeline.totalDuration > 0 else { return nil }
 
-        let rowH: Double    = 28
-        let rowGap: Double  = 4
-        let rulerH: Double  = 24
-        let indent: Double  = 16
-        let leftPad: Double = 8
+        let rowH: Double     = 28
+        let rowGap: Double   = 4
+        let rulerH: Double   = 24
+        let indent: Double   = 14
+        let leftPad: Double  = 8
         let rightPad: Double = 20
+
+        // Threshold: bars wider than this get the label inside; narrower bars get it outside.
+        let inlineThreshold: Double = 40
+        // Approx width of one character at font-size 10.
+        let charW: Double = 6.5
 
         var rows: [(node: ProcessNode, depth: Int)] = []
         dfs(timeline.rootNode, depth: 0, into: &rows)
 
-        let svgW = leftPad + timeline.totalDuration * pixelsPerSecond + rightPad
+        // Compute the true right extent, accounting for depth indent and overflow labels.
+        let maxRight = rows.reduce(leftPad) { acc, row in
+            let (node, depth) = (row.node, row.depth)
+            let dur = (node.endTime ?? node.startTime + 0.05) - node.startTime
+            let x = leftPad + Double(depth) * indent + (node.startTime - timeline.startTime) * pixelsPerSecond
+            let w = max(4.0, dur * pixelsPerSecond)
+            let overflow = w < inlineThreshold ? Double(node.commandName.count) * charW + 6 : 0
+            return max(acc, x + w + overflow)
+        }
+        let svgW = maxRight + rightPad
         let svgH = rulerH + Double(rows.count) * (rowH + rowGap) + 8
 
         var out: [String] = []
-        out.reserveCapacity(rows.count * 2 + 20)
+        out.reserveCapacity(rows.count * 3 + 20)
 
         out.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
         out.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"\(svgW.svgPt)\" height=\"\(svgH.svgPt)\">")
@@ -51,18 +65,25 @@ enum TimelineExporter {
             let y   = rulerH + Double(i) * (rowH + rowGap)
             let w   = max(4.0, dur * pixelsPerSecond)
             let fill = svgColor(for: node)
+            let ty   = (y + rowH * 0.68).svgPt
 
-            out.append("  <rect x=\"\(x.svgPt)\" y=\"\(y.svgPt)\" width=\"\(w.svgPt)\" height=\"\(rowH.svgPt)\" rx=\"3\" fill=\"\(fill)\"/>")
+            out.append("  <rect x=\"\(x.svgPt)\" y=\"\(y.svgPt)\" width=\"\(w.svgPt)\" height=\"\(rowH.svgPt)\" rx=\"3\" fill=\"\(fill)\">")
+            // Browser tooltip: always shows full name + duration on hover.
+            out.append("    <title>\(xmlEscape(node.commandName)) (\(durationLabel(dur)))</title>")
+            out.append("  </rect>")
 
-            // Label truncated to fit inside box (~6.2px per char at font-size 10)
-            let maxChars = max(0, Int(w / 6.2) - 1)
-            if maxChars >= 2 {
+            if w >= inlineThreshold {
+                // Label fits inside the bar — truncate to available width.
+                let maxChars = max(1, Int(w / charW) - 1)
                 let raw = w >= 120
-                    ? "\(node.commandName) — \(durationLabel(dur))"
+                    ? "\(node.commandName) \u{2014} \(durationLabel(dur))"
                     : node.commandName
                 let label = xmlEscape(String(raw.prefix(maxChars)))
-                let ty = (y + rowH * 0.68).svgPt
-                out.append("  <text x=\"\((x + 4).svgPt)\" y=\"\(ty)\" font-family=\"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif\" font-size=\"10\" font-weight=\"500\" fill=\"white\">\(label)</text>")
+                out.append("  <text x=\"\((x + 4).svgPt)\" y=\"\(ty)\" font-family=\"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif\" font-size=\"10\" font-weight=\"500\" fill=\"white\" clip-path=\"url(none)\">\(label)</text>")
+            } else {
+                // Bar is too narrow — render the full name to the right of the bar.
+                let label = xmlEscape(node.commandName)
+                out.append("  <text x=\"\((x + w + 3).svgPt)\" y=\"\(ty)\" font-family=\"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif\" font-size=\"9\" fill=\"\(fill)\">\(label)</text>")
             }
         }
 
