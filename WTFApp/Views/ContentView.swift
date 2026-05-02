@@ -1,6 +1,7 @@
 // WTFApp/Views/ContentView.swift
 import SwiftUI
 import WTFCore
+// import panels are not needed; SwiftUI will find them in same target
 
 struct ContentView: View {
     @StateObject private var session = BuildSession()
@@ -136,13 +137,4 @@ struct ContentView: View {
     }
 }
 
-// Placeholder stubs — replaced by full implementations in Task 14
-struct ProcessDetailPanel: View {
-    let node: ProcessNode?
-    var body: some View { EmptyView() }
-}
 
-struct AnalysisPanel: View {
-    let analysis: BuildAnalysis
-    var body: some View { EmptyView() }
-}
