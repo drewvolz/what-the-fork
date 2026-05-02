@@ -44,9 +44,9 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
         return true
     }
 
-    func startSession(id: String, rootPID: Int32) {
+    func startSession(id: String, rootPID: Int32, reply: @escaping (Bool) -> Void) {
         queue.async { [weak self] in
-            guard let self else { return }
+            guard let self else { reply(false); return }
             NSLog("WTFDaemon: startSession id=%@ rootPID=%d", id, rootPID)
             self.activeSessions.insert(id)
             self.sessionRootPID[id] = pid_t(rootPID)
@@ -68,6 +68,9 @@ final class XPCEventServer: NSObject, NSXPCListenerDelegate {
             )
             NSLog("WTFDaemon: synthetic exec for rootPID=%d cmd=%@", rootPID, cmdPath)
             self.enqueue(synthetic, to: id)
+            // Reply only after pidToSession is set so the CLI's SIGCONT fires after
+            // the daemon is guaranteed to track the root PID's children.
+            reply(true)
         }
     }
 
@@ -211,8 +214,7 @@ final class XPCSessionHandler: NSObject, WTFDaemonXPCProtocol {
     }
 
     func startSession(id: String, rootPID: Int32, withReply reply: @escaping (Bool) -> Void) {
-        server?.startSession(id: id, rootPID: rootPID)
-        reply(true)
+        server?.startSession(id: id, rootPID: rootPID, reply: reply)
     }
 
     func endSession(id: String) {

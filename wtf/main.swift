@@ -23,11 +23,15 @@ let commandArgs = Array(allArgs.dropFirst())
 let sessionID = UUID().uuidString
 
 do {
+    // Spawn suspended — the process won't run until we SIGCONT it below.
     let buildPID = try BuildRunner.launch(command: command, args: commandArgs)
     print("wtf: launched \(command) as PID \(buildPID), session \(sessionID)")
     print("wtf: press Ctrl+C to stop capturing")
 
+    // Register with daemon first (blocks until daemon confirms pidToSession is set),
+    // then resume the process so all fork/exec children are tracked from the start.
     DaemonLauncher.startSession(id: sessionID, rootPID: buildPID)
+    kill(buildPID, SIGCONT)
     AppLauncher.openApp(sessionID: sessionID, rootPID: buildPID)
 
     // Handle Ctrl+C: end the session cleanly rather than abandoning it.
