@@ -18,6 +18,9 @@ struct TimelineView: View {
     var criticalPathIDs: Set<Int> = []
     @State private var scrollOffset: CGPoint = .zero
     @State private var visibleSize: CGSize = .zero
+    @State private var scrollProxy: ScrollViewProxy?
+    @State private var pinchStartPPS: Double = 100.0
+    @State private var isPinching: Bool = false
     private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
 
@@ -28,10 +31,22 @@ struct TimelineView: View {
                 .onChange(of: geo.size) { visibleSize = $0 }
         }
         if #available(macOS 14.0, *) {
-            content.gesture(MagnifyGesture()
-                .onChanged { value in
-                    pixelsPerSecond = max(10, min(2000, pixelsPerSecond * value.magnification))
-                }
+            content.gesture(
+                MagnifyGesture()
+                    .onChanged { value in
+                        if !isPinching {
+                            isPinching = true
+                            pinchStartPPS = pixelsPerSecond
+                        }
+                        pixelsPerSecond = max(10, min(2000, pinchStartPPS * value.magnification))
+                    }
+                    .onEnded { _ in
+                        isPinching = false
+                        let centerTime: TimeInterval = pixelsPerSecond > 0 && visibleSize.width > 0
+                            ? (scrollOffset.x + visibleSize.width / 2) / pixelsPerSecond
+                            : 0
+                        seekToTime(centerTime)
+                    }
             )
         } else {
             content
@@ -74,11 +89,15 @@ struct TimelineView: View {
             .coordinateSpace(name: "timeline")
             .background(Color(nsColor: .controlBackgroundColor))
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { scrollOffset = $0 }
+            .onAppear { scrollProxy = innerProxy }
             .overlay(alignment: .bottomTrailing) {
                 ZoomControlsOverlay(
-                    pixelsPerSecond: $pixelsPerSecond,
+                    pixelsPerSecond: pixelsPerSecond,
                     totalDuration: timeline.totalDuration,
-                    visibleWidth: visibleSize.width
+                    visibleWidth: visibleSize.width,
+                    onZoomIn: { performZoom(factor: 1.5) },
+                    onZoomOut: { performZoom(factor: 1 / 1.5) },
+                    onZoomFit: { zoomFit() }
                 )
                 .padding(10)
             }
@@ -140,6 +159,35 @@ struct TimelineView: View {
                 }
             }
         )
+    }
+
+    // MARK: - Zoom helpers
+
+    /// Zoom by `factor` keeping the currently-visible center time at screen center after zoom.
+    private func performZoom(factor: Double) {
+        let centerTime: TimeInterval
+        if pixelsPerSecond > 0 && visibleSize.width > 0 {
+            centerTime = (scrollOffset.x + visibleSize.width / 2) / pixelsPerSecond
+        } else {
+            centerTime = 0
+        }
+        pixelsPerSecond = max(10, min(2000, pixelsPerSecond * factor))
+        DispatchQueue.main.async { seekToTime(centerTime) }
+    }
+
+    /// Fit the full build into the visible width, then scroll to the start.
+    private func zoomFit() {
+        guard timeline.totalDuration > 0, visibleSize.width > 0 else { return }
+        pixelsPerSecond = max(10, min(2000, Double(visibleSize.width) / timeline.totalDuration))
+        DispatchQueue.main.async { seekToTime(0) }
+    }
+
+    /// Scroll so that `time` is centered horizontally in the viewport.
+    private func seekToTime(_ time: TimeInterval) {
+        let index = max(0, min(Int((time / 0.1).rounded()), anchorCount - 1))
+        withAnimation(.easeOut(duration: 0.15)) {
+            scrollProxy?.scrollTo("t_\(index)", anchor: .center)
+        }
     }
 }
 
