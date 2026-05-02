@@ -19,8 +19,9 @@ struct TimelineView: View {
     @State private var scrollOffset: CGPoint = .zero
     @State private var visibleSize: CGSize = .zero
     @State private var scrollProxy: ScrollViewProxy?
-    @State private var pinchStartPPS: Double = 100.0
+    @State private var pinchStartPPS: Double = 100.0  // overwritten at gesture start; initial value is irrelevant
     @State private var isPinching: Bool = false
+    @State private var pinchCenterTime: TimeInterval = 0
     private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
 
@@ -37,15 +38,16 @@ struct TimelineView: View {
                         if !isPinching {
                             isPinching = true
                             pinchStartPPS = pixelsPerSecond
+                            // Capture center time before zoom changes pps and anchor positions.
+                            pinchCenterTime = pixelsPerSecond > 0 && visibleSize.width > 0
+                                ? (scrollOffset.x + visibleSize.width / 2) / pixelsPerSecond
+                                : 0
                         }
                         pixelsPerSecond = max(10, min(2000, pinchStartPPS * value.magnification))
                     }
                     .onEnded { _ in
                         isPinching = false
-                        let centerTime: TimeInterval = pixelsPerSecond > 0 && visibleSize.width > 0
-                            ? (scrollOffset.x + visibleSize.width / 2) / pixelsPerSecond
-                            : 0
-                        seekToTime(centerTime)
+                        DispatchQueue.main.async { seekToTime(pinchCenterTime) }
                     }
             )
         } else {
@@ -199,14 +201,14 @@ struct TimelineView: View {
     private func zoomFit() {
         guard timeline.totalDuration > 0, visibleSize.width > 0 else { return }
         pixelsPerSecond = max(10, min(2000, Double(visibleSize.width) / timeline.totalDuration))
-        DispatchQueue.main.async { seekToTime(0) }
+        DispatchQueue.main.async { seekToTime(0, anchor: .leading) }
     }
 
-    /// Scroll so that `time` is centered horizontally in the viewport.
-    private func seekToTime(_ time: TimeInterval) {
+    /// Scroll so that `time` appears at `anchor` position in the viewport (default: center).
+    private func seekToTime(_ time: TimeInterval, anchor: UnitPoint = .center) {
         let index = max(0, min(Int((time / 0.1).rounded()), anchorCount - 1))
         withAnimation(.easeOut(duration: 0.15)) {
-            scrollProxy?.scrollTo("t_\(index)", anchor: .center)
+            scrollProxy?.scrollTo("t_\(index)", anchor: anchor)
         }
     }
 }
