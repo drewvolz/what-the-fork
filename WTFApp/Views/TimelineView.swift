@@ -109,11 +109,7 @@ struct TimelineView: View {
                     pixelsPerSecond: pixelsPerSecond,
                     onSeek: { fraction in
                         let targetTime = fraction * timeline.totalDuration
-                        let index = Int((targetTime / 0.1).rounded())
-                        let clamped = max(0, min(index, anchorCount - 1))
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            innerProxy.scrollTo("t_\(clamped)", anchor: .leading)
-                        }
+                        seekToTime(targetTime)
                     }
                 )
                 .padding(10)
