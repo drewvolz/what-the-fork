@@ -25,15 +25,11 @@ struct ProcessBoxView: View {
         return max(CGFloat(dur * pixelsPerSecond), 4)
     }
 
-    private let inlineThreshold: CGFloat = 40
-
     var body: some View {
         let color = ProcessClassifier.color(for: node)
-        HStack(spacing: 0) {
+        ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 3)
                 .fill(color.opacity(isSelected ? 1.0 : 0.75))
-                .frame(width: width, height: 32)
-                .overlay(labelOverlay(color: color), alignment: .leading)
                 .overlay(
                     RoundedRectangle(cornerRadius: 3)
                         .stroke(
@@ -43,37 +39,24 @@ struct ProcessBoxView: View {
                         )
                 )
                 .onTapGesture(perform: onSelect)
-                .help("\(node.displayName) — \(formattedDuration)")
 
-            // Overflow label: shown when the bar is too narrow to hold text inside.
-            // Mirrors SVG export behavior — label appears to the right in the node's color.
-            if width < inlineThreshold {
-                Text(node.displayName)
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(color)
-                    .lineLimit(1)
-                    .fixedSize()
-                    .padding(.leading, 3)
-                    .allowsHitTesting(false)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func labelOverlay(color: Color) -> some View {
-        if let label = inlineLabelText(for: width) {
-            Text(label)
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.white)
+            // Label: always visible at natural width (never truncated).
+            // Wide bars (≥40px): label starts inside bar in white, overflows right.
+            // Narrow bars (<40px): label starts just right of the bar in the node color.
+            // Matches SVG export behavior (clip-path="url(none)").
+            Text(labelString)
+                .font(.system(size: width >= 40 ? 10 : 9, weight: .medium))
+                .foregroundStyle(width >= 40 ? Color.white : color)
                 .lineLimit(1)
-                .truncationMode(.tail)
-                .minimumScaleFactor(0.7)
-                .padding(.horizontal, 4)
+                .fixedSize()
+                .padding(.leading, width >= 40 ? 4 : width + 3)
+                .allowsHitTesting(false)
         }
+        .frame(width: width, height: 32)
+        .help("\(node.displayName) — \(formattedDuration)")
     }
 
-    private func inlineLabelText(for width: CGFloat) -> String? {
-        guard width >= inlineThreshold else { return nil }
+    private var labelString: String {
         if width >= 120 { return "\(node.displayName) — \(formattedDuration)" }
         return node.displayName
     }
