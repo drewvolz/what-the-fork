@@ -30,6 +30,13 @@ targets:
       properties:
         com.apple.security.app-sandbox: false
         com.apple.security.automation.apple-events: true
+    info:
+      path: WTFApp/Info.plist
+      properties:
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - whatthefork
+            CFBundleURLName: com.whatthefork.app
 
   WTFDaemon:
     type: tool
