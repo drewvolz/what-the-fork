@@ -2,7 +2,7 @@
 import SwiftUI
 import WTFCore
 
-public struct AnalysisPanel: View {
+struct AnalysisPanel: View {
     let analysis: BuildAnalysis
 
     var body: some View {

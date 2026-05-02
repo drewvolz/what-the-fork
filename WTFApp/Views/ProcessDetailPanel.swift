@@ -2,7 +2,7 @@
 import SwiftUI
 import WTFCore
 
-public struct ProcessDetailPanel: View {
+struct ProcessDetailPanel: View {
     let node: ProcessNode?
 
     var body: some View {
