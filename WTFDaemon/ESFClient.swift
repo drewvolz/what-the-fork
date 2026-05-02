@@ -2,11 +2,10 @@
 import Foundation
 import EndpointSecurity
 
-/// Subscribes to ESF process events and calls the handler for each event.
-/// Must run as root with the `com.apple.developer.endpoint-security.client` entitlement.
+/// Global ESF subscription — started once at daemon launch, reports all
+/// system process events. Filtering by session is done by XPCEventServer.
 final class ESFClient {
     private var client: OpaquePointer?
-    private let rootPID: pid_t
     private let onEvent: (ProcessEventData) -> Void
 
     struct ProcessEventData {
@@ -20,8 +19,7 @@ final class ESFClient {
         let exitCode: Int?
     }
 
-    init(rootPID: pid_t, onEvent: @escaping (ProcessEventData) -> Void) {
-        self.rootPID = rootPID
+    init(onEvent: @escaping (ProcessEventData) -> Void) {
         self.onEvent = onEvent
     }
 
@@ -29,17 +27,16 @@ final class ESFClient {
         let result = es_new_client(&client) { [weak self] _, message in
             self?.handleMessage(message)
         }
-
         guard result == ES_NEW_CLIENT_RESULT_SUCCESS else {
             throw ESFError.clientCreationFailed(result)
         }
-
         let events: [es_event_type_t] = [
             ES_EVENT_TYPE_NOTIFY_FORK,
             ES_EVENT_TYPE_NOTIFY_EXEC,
             ES_EVENT_TYPE_NOTIFY_EXIT,
         ]
         es_subscribe(client!, events, UInt32(events.count))
+        NSLog("WTFDaemon: ESF subscription active — listening for all process events")
     }
 
     func stop() {
@@ -53,41 +50,33 @@ final class ESFClient {
         let msg = message.pointee
         let pid = audit_token_to_pid(msg.process.pointee.audit_token)
         let ppid = msg.process.pointee.ppid
-
-        // Only observe descendants of rootPID
-        guard isDescendant(pid: pid) || pid == rootPID else { return }
-
         let timestamp = TimeInterval(msg.time.tv_sec) + TimeInterval(msg.time.tv_nsec) / 1_000_000_000
 
         switch msg.event_type {
         case ES_EVENT_TYPE_NOTIFY_FORK:
             let childPID = audit_token_to_pid(msg.event.fork.child.pointee.audit_token)
-            let parentCommand = commandPath(from: msg.process.pointee)
             onEvent(ProcessEventData(
                 type: "fork",
                 pid: Int(childPID),
                 ppid: Int(pid),
                 timestamp: timestamp,
-                command: parentCommand,
+                command: commandPath(from: msg.process.pointee),
                 args: [],
-                cwd: cwdPath(from: msg.process.pointee),
+                cwd: "",
                 exitCode: nil
             ))
 
         case ES_EVENT_TYPE_NOTIFY_EXEC:
-            let execPID = audit_token_to_pid(msg.process.pointee.audit_token)
             var execEvent = msg.event.exec
             let target = execEvent.target.pointee
-            let command = commandPath(from: target)
-            let args = execArgs(from: &execEvent)
             onEvent(ProcessEventData(
                 type: "exec",
-                pid: Int(execPID),
+                pid: Int(pid),
                 ppid: Int(ppid),
                 timestamp: timestamp,
-                command: command,
-                args: args,
-                cwd: cwdPath(from: target),
+                command: commandPath(from: target),
+                args: execArgs(from: &execEvent),
+                cwd: "",
                 exitCode: nil
             ))
 
@@ -108,31 +97,14 @@ final class ESFClient {
         }
     }
 
-    // Walks up the process tree to check if `pid` is a descendant of rootPID.
-    private var trackedPIDs: Set<pid_t> = []
-    private func isDescendant(pid: pid_t) -> Bool {
-        return trackedPIDs.contains(pid)
-    }
-
-    func registerChild(pid: pid_t) {
-        trackedPIDs.insert(pid)
-    }
-
     private func commandPath(from process: es_process_t) -> String {
-        let pathPtr = process.executable.pointee.path
-        return String(cString: pathPtr.data)
-    }
-
-    private func cwdPath(from process: es_process_t) -> String {
-        // es_process_t.cwd is unavailable in this SDK; cwd is omitted from process events
-        return ""
+        String(cString: process.executable.pointee.path.data)
     }
 
     private func execArgs(from event: inout es_event_exec_t) -> [String] {
         let count = es_exec_arg_count(&event)
         return (0..<count).map { i in
-            let token = es_exec_arg(&event, UInt32(i))
-            return String(cString: token.data)
+            String(cString: es_exec_arg(&event, UInt32(i)).data)
         }
     }
 }
