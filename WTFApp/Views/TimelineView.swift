@@ -17,7 +17,7 @@ struct TimelineView: View {
     @State private var pixelsPerSecond: Double = 100.0
     @State private var scrollOffset: CGPoint = .zero
     @State private var visibleSize: CGSize = .zero
-    private let rowHeight: CGFloat = 28
+    private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
 
     var body: some View {

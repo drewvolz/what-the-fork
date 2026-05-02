@@ -37,7 +37,7 @@ private struct ExportableTimelineView: View {
     let timeline: Timeline
     let pixelsPerSecond: Double
 
-    private let rowHeight: CGFloat = 28
+    private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
 
     var body: some View {

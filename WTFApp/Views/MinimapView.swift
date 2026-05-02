@@ -60,8 +60,8 @@ struct MinimapView: View {
             let h = max(1, rowH - 1)
 
             let rect = CGRect(x: x, y: y, width: w, height: h)
-            let category = ProcessClassifier.classify(node)
-            context.fill(Path(roundedRect: rect, cornerRadius: 1), with: .color(category.color.opacity(0.7)))
+            let nodeColor = ProcessClassifier.color(for: node)
+            context.fill(Path(roundedRect: rect, cornerRadius: 1), with: .color(nodeColor.opacity(0.7)))
         }
     }
 
