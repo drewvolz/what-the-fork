@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct WhatTheForkApp: App {
     var body: some Scene {
-        WindowGroup {
+        Window("What the Fork", id: "main") {
             ContentView()
         }
     }
