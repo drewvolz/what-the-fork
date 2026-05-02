@@ -107,6 +107,7 @@ struct TimelineView: View {
                     scrollOffset: scrollOffset,
                     visibleSize: visibleSize,
                     pixelsPerSecond: pixelsPerSecond,
+                    criticalPathIDs: criticalPathIDs,
                     onSeek: { fraction in
                         let targetTime = fraction * timeline.totalDuration
                         seekToTime(targetTime)

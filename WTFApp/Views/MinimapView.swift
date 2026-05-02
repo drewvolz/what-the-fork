@@ -10,6 +10,8 @@ struct MinimapView: View {
     let scrollOffset: CGPoint
     let visibleSize: CGSize
     let pixelsPerSecond: Double
+    /// Set of process IDs on the critical path — rendered with a gold outline.
+    var criticalPathIDs: Set<Int> = []
     /// Called with a time fraction [0, 1] when the user taps or drags.
     let onSeek: (Double) -> Void
 
@@ -48,6 +50,7 @@ struct MinimapView: View {
         flattenNodes(timeline.rootNode, row: 0, into: &allNodes)
         let totalRows = max(1, allNodes.count)
 
+        // First pass: fill all nodes.
         for (node, row) in allNodes {
             let startFraction = (node.startTime - timeline.startTime) / totalDuration
             let duration = (node.endTime ?? node.startTime + 0.05) - node.startTime
@@ -62,6 +65,28 @@ struct MinimapView: View {
             let rect = CGRect(x: x, y: y, width: w, height: h)
             let nodeColor = ProcessClassifier.color(for: node)
             context.fill(Path(roundedRect: rect, cornerRadius: 1), with: .color(nodeColor.opacity(0.7)))
+        }
+
+        // Second pass: gold outline for critical path nodes.
+        guard !criticalPathIDs.isEmpty else { return }
+        let goldColor = Color(red: 1.0, green: 0.75, blue: 0.0).opacity(0.85)
+        for (node, row) in allNodes where criticalPathIDs.contains(node.id) {
+            let startFraction = (node.startTime - timeline.startTime) / totalDuration
+            let duration = (node.endTime ?? node.startTime + 0.05) - node.startTime
+            let widthFraction = duration / totalDuration
+
+            let x = CGFloat(startFraction) * size.width
+            let w = max(2, CGFloat(widthFraction) * size.width)
+            let rowH = size.height / CGFloat(totalRows)
+            let y = CGFloat(row) * rowH
+            let h = max(2, rowH - 1)
+
+            let rect = CGRect(x: x, y: y, width: w, height: h)
+            context.stroke(
+                Path(roundedRect: rect, cornerRadius: 1),
+                with: .color(goldColor),
+                lineWidth: 1
+            )
         }
     }
 
