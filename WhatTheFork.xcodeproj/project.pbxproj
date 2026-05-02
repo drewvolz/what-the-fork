@@ -1,0 +1,636 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06DB1CA85C59CB4BA86876F0 /* XPCEventClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B360B399023E8493D9E20C7D /* XPCEventClient.swift */; };
+		0BD979828F93D807DAAAF51C /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD8B0B07370A17A9D8E0600 /* TimelineView.swift */; };
+		10A1FDB5552026EB26E65E75 /* libEndpointSecurity.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1135FC44EE12C297B0B2C5 /* libEndpointSecurity.tbd */; };
+		1DD9FC012D5F299BCD082F66 /* WhatTheForkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10107D1BD4F6BF6F735CB01 /* WhatTheForkApp.swift */; };
+		1E7679C36F2CB0EF09F43B97 /* ZoomControlsOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595C16C8CAF2C90490BE2DCA /* ZoomControlsOverlay.swift */; };
+		1FAF58920DE4577080CBDF6E /* NamedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D3DEE5C99036CF061E832EE /* NamedSession.swift */; };
+		22F5292579AD51AB6089AA5E /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DECC2C189F68A2EB9CD2D39 /* SessionManager.swift */; };
+		B70ECE5D2CA34EBE86485604 /* StoredSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D227113164627A470DF8A /* StoredSession.swift */; };
+		3DC719F906604BFAB3AF2AF2 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD4B134F1114CDC9D4B1889 /* SessionStore.swift */; };
+		29203861346F18BF8C43FE75 /* XPCEventServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6DB730187C0BD7A6FBE3E /* XPCEventServer.swift */; };
+		2993EB7276DC621055127478 /* ESFClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A73F1AD6FD4DC68BBEC43B20 /* ESFClient.swift */; };
+		2F55349EEB5CD5E5ACAACB92 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9321EEE0AC7135ADE0B909 /* main.swift */; };
+		39158B4A845554BBE6B26136 /* MinimapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E259B93DF7A959565272ED0A /* MinimapView.swift */; };
+		A1B2C3D4E5F67890A1B2C3D4 /* MinimapThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978801F2E3D4 /* MinimapThumbnailView.swift */; };
+		57A63DA6FC9018FA2AF89F1C /* BuildSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B130E57647CCC9AD672B33A /* BuildSession.swift */; };
+		6FE59C8A06235B80F8967D22 /* BuildRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5A3447E11A2C1A60CFBBCC /* BuildRunner.swift */; };
+		7A5008EBF147F5A167C17682 /* libbsm.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CC877F53E8382418D98FC279 /* libbsm.tbd */; };
+		9B9DAA776CC54BF2657B6E57 /* ProcessClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB66E6544ED200172DEE0F98 /* ProcessClassifier.swift */; };
+		A03568033841AAEB67A5E356 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8ED65E69B96F2F22C588BE5 /* ContentView.swift */; };
+		A3F64258D51112EF8A63A705 /* AppLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23957FB4DF82F87A2927C7A /* AppLauncher.swift */; };
+		A6910F0CAF6CAA83D8982EF8 /* ProcessBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B881FFB83529D6E8947C4 /* ProcessBoxView.swift */; };
+		B494839067261C2669CFF3A7 /* AnalysisPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE3676C3B8B3AC3E0B93980 /* AnalysisPanel.swift */; };
+		C498FBCCA10DC7C5AB9C1092 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4165AC7040C4F3D6E575C6 /* main.swift */; };
+		CD8DE1E94331D674C9C6ACB8 /* WTFCore in Frameworks */ = {isa = PBXBuildFile; productRef = CC65FD45F3FF7453CD338E9F /* WTFCore */; };
+		DB554754D462DFF05052BCAD /* ConcurrencyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F777CDF87F1E41E64B3F73D3 /* ConcurrencyChartView.swift */; };
+		DE0DF169D37F9CC1E15AC6CA /* TimelineExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFADFE621AC4D9163425B89 /* TimelineExporter.swift */; };
+		DE97E0842537DBA72BD9315A /* ProcessDetailPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39560C8B8C3E73087B9312BF /* ProcessDetailPanel.swift */; };
+		F02F2E1C43A3026E09554B30 /* WTFCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8A891296E4B921A72EC03A9 /* WTFCore */; };
+		F47525081FDEB76A7835FE2A /* DaemonLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA2F7B0FFA69D0F0FAA484C /* DaemonLauncher.swift */; };
+		F73732E36C832EB4AE89B27A /* WTFXPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A849E3FCE3EC4AF84F2F5 /* WTFXPCProtocol.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		077F7D70E45E70BE680F7094 /* WhatTheFork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhatTheFork.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		078A849E3FCE3EC4AF84F2F5 /* WTFXPCProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WTFXPCProtocol.swift; sourceTree = "<group>"; };
+		0A4B881FFB83529D6E8947C4 /* ProcessBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessBoxView.swift; sourceTree = "<group>"; };
+		0C4165AC7040C4F3D6E575C6 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		186B627EABFF9BC4A8F9FD81 /* WTFCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WTFCore; path = WTFCore; sourceTree = SOURCE_ROOT; };
+		1CA2F7B0FFA69D0F0FAA484C /* DaemonLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaemonLauncher.swift; sourceTree = "<group>"; };
+		1D3DEE5C99036CF061E832EE /* NamedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamedSession.swift; sourceTree = "<group>"; };
+		1FF8FBEBCEA068224C30B932 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		39560C8B8C3E73087B9312BF /* ProcessDetailPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessDetailPanel.swift; sourceTree = "<group>"; };
+		3DD8B0B07370A17A9D8E0600 /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		4B130E57647CCC9AD672B33A /* BuildSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildSession.swift; sourceTree = "<group>"; };
+		595C16C8CAF2C90490BE2DCA /* ZoomControlsOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomControlsOverlay.swift; sourceTree = "<group>"; };
+		7AE3676C3B8B3AC3E0B93980 /* AnalysisPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPanel.swift; sourceTree = "<group>"; };
+		8DECC2C189F68A2EB9CD2D39 /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		DC7D227113164627A470DF8A /* StoredSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredSession.swift; sourceTree = "<group>"; };
+		DFD4B134F1114CDC9D4B1889 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		8F5A3447E11A2C1A60CFBBCC /* BuildRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildRunner.swift; sourceTree = "<group>"; };
+		A2A6DB730187C0BD7A6FBE3E /* XPCEventServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCEventServer.swift; sourceTree = "<group>"; };
+		A73F1AD6FD4DC68BBEC43B20 /* ESFClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESFClient.swift; sourceTree = "<group>"; };
+		AA1135FC44EE12C297B0B2C5 /* libEndpointSecurity.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libEndpointSecurity.tbd; path = usr/lib/libEndpointSecurity.tbd; sourceTree = SDKROOT; };
+		B10107D1BD4F6BF6F735CB01 /* WhatTheForkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatTheForkApp.swift; sourceTree = "<group>"; };
+		B360B399023E8493D9E20C7D /* XPCEventClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCEventClient.swift; sourceTree = "<group>"; };
+		C21658F37CF6813B42C09C5F /* WhatTheFork.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WhatTheFork.entitlements; sourceTree = "<group>"; };
+		C8ED65E69B96F2F22C588BE5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CB66E6544ED200172DEE0F98 /* ProcessClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessClassifier.swift; sourceTree = "<group>"; };
+		CC877F53E8382418D98FC279 /* libbsm.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbsm.tbd; path = usr/lib/libbsm.tbd; sourceTree = SDKROOT; };
+		CF9321EEE0AC7135ADE0B909 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		DD13034E4D565D9F65C5FF4F /* WTFDaemon */ = {isa = PBXFileReference; includeInIndex = 0; path = WTFDaemon; sourceTree = BUILT_PRODUCTS_DIR; };
+		E23957FB4DF82F87A2927C7A /* AppLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLauncher.swift; sourceTree = "<group>"; };
+		E259B93DF7A959565272ED0A /* MinimapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimapView.swift; sourceTree = "<group>"; };
+		F1E2D3C4B5A6978801F2E3D4 /* MinimapThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimapThumbnailView.swift; sourceTree = "<group>"; };
+		E5E64720D0265E2A2F836E14 /* WTFDaemon.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WTFDaemon.entitlements; sourceTree = "<group>"; };
+		EAFADFE621AC4D9163425B89 /* TimelineExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineExporter.swift; sourceTree = "<group>"; };
+		F777CDF87F1E41E64B3F73D3 /* ConcurrencyChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrencyChartView.swift; sourceTree = "<group>"; };
+		FCCD55FCB75912E25216A3D4 /* wtf */ = {isa = PBXFileReference; includeInIndex = 0; path = wtf; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		06CF4F350ACFFC05A2CE0D81 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F02F2E1C43A3026E09554B30 /* WTFCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		75AD3C4E7E14CF47B8742C2A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD8DE1E94331D674C9C6ACB8 /* WTFCore in Frameworks */,
+				10A1FDB5552026EB26E65E75 /* libEndpointSecurity.tbd in Frameworks */,
+				7A5008EBF147F5A167C17682 /* libbsm.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		02704E04383985AA10B5D97B /* WTFApp */ = {
+			isa = PBXGroup;
+			children = (
+				1FF8FBEBCEA068224C30B932 /* Info.plist */,
+				C21658F37CF6813B42C09C5F /* WhatTheFork.entitlements */,
+				B10107D1BD4F6BF6F735CB01 /* WhatTheForkApp.swift */,
+				7E161AEE5B155E8247281D3D /* Helpers */,
+				AF647C585243904C53D41995 /* Models */,
+				796C8EA80539354686B276EC /* Views */,
+			);
+			path = WTFApp;
+			sourceTree = "<group>";
+		};
+		0D054AE7B6F1CBC4F9E8886E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				077F7D70E45E70BE680F7094 /* WhatTheFork.app */,
+				FCCD55FCB75912E25216A3D4 /* wtf */,
+				DD13034E4D565D9F65C5FF4F /* WTFDaemon */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5D830591E86C54E21EC423B4 /* WTFDaemon */ = {
+			isa = PBXGroup;
+			children = (
+				A73F1AD6FD4DC68BBEC43B20 /* ESFClient.swift */,
+				0C4165AC7040C4F3D6E575C6 /* main.swift */,
+				E5E64720D0265E2A2F836E14 /* WTFDaemon.entitlements */,
+				078A849E3FCE3EC4AF84F2F5 /* WTFXPCProtocol.swift */,
+				A2A6DB730187C0BD7A6FBE3E /* XPCEventServer.swift */,
+			);
+			path = WTFDaemon;
+			sourceTree = "<group>";
+		};
+		796C8EA80539354686B276EC /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7AE3676C3B8B3AC3E0B93980 /* AnalysisPanel.swift */,
+				F777CDF87F1E41E64B3F73D3 /* ConcurrencyChartView.swift */,
+				C8ED65E69B96F2F22C588BE5 /* ContentView.swift */,
+				E259B93DF7A959565272ED0A /* MinimapView.swift */,
+				F1E2D3C4B5A6978801F2E3D4 /* MinimapThumbnailView.swift */,
+				0A4B881FFB83529D6E8947C4 /* ProcessBoxView.swift */,
+				39560C8B8C3E73087B9312BF /* ProcessDetailPanel.swift */,
+				3DD8B0B07370A17A9D8E0600 /* TimelineView.swift */,
+				595C16C8CAF2C90490BE2DCA /* ZoomControlsOverlay.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7E161AEE5B155E8247281D3D /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				CB66E6544ED200172DEE0F98 /* ProcessClassifier.swift */,
+				EAFADFE621AC4D9163425B89 /* TimelineExporter.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		8924885E1E21C0CF79AB677E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CC877F53E8382418D98FC279 /* libbsm.tbd */,
+				AA1135FC44EE12C297B0B2C5 /* libEndpointSecurity.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8ADECDA3483FA4E751193D9E /* wtf */ = {
+			isa = PBXGroup;
+			children = (
+				E23957FB4DF82F87A2927C7A /* AppLauncher.swift */,
+				8F5A3447E11A2C1A60CFBBCC /* BuildRunner.swift */,
+				1CA2F7B0FFA69D0F0FAA484C /* DaemonLauncher.swift */,
+				CF9321EEE0AC7135ADE0B909 /* main.swift */,
+			);
+			path = wtf;
+			sourceTree = "<group>";
+		};
+		A915347E50CFCB9A489B9756 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				186B627EABFF9BC4A8F9FD81 /* WTFCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		AF647C585243904C53D41995 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4B130E57647CCC9AD672B33A /* BuildSession.swift */,
+				1D3DEE5C99036CF061E832EE /* NamedSession.swift */,
+				8DECC2C189F68A2EB9CD2D39 /* SessionManager.swift */,
+				DC7D227113164627A470DF8A /* StoredSession.swift */,
+				DFD4B134F1114CDC9D4B1889 /* SessionStore.swift */,
+				B360B399023E8493D9E20C7D /* XPCEventClient.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C4C24050C3763297EF77C5B4 = {
+			isa = PBXGroup;
+			children = (
+				A915347E50CFCB9A489B9756 /* Packages */,
+				8ADECDA3483FA4E751193D9E /* wtf */,
+				02704E04383985AA10B5D97B /* WTFApp */,
+				5D830591E86C54E21EC423B4 /* WTFDaemon */,
+				8924885E1E21C0CF79AB677E /* Frameworks */,
+				0D054AE7B6F1CBC4F9E8886E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1F1BE81A5FE6072AFEC0A920 /* WhatTheFork */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FADE173DA703BCDB06029849 /* Build configuration list for PBXNativeTarget "WhatTheFork" */;
+			buildPhases = (
+				1BB53535C4D75E1DEA70B856 /* Sources */,
+				06CF4F350ACFFC05A2CE0D81 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WhatTheFork;
+			packageProductDependencies = (
+				D8A891296E4B921A72EC03A9 /* WTFCore */,
+			);
+			productName = WhatTheFork;
+			productReference = 077F7D70E45E70BE680F7094 /* WhatTheFork.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4859F32ABD8ED837F902973D /* wtf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7D58787830E4CDBA0949BD6F /* Build configuration list for PBXNativeTarget "wtf" */;
+			buildPhases = (
+				110C24FB70AB11B5A456B3EF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = wtf;
+			packageProductDependencies = (
+			);
+			productName = wtf;
+			productReference = FCCD55FCB75912E25216A3D4 /* wtf */;
+			productType = "com.apple.product-type.tool";
+		};
+		7536F6ABCECFA5787CFA3DB3 /* WTFDaemon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 40BF5AC8707C1ED2068E3FF1 /* Build configuration list for PBXNativeTarget "WTFDaemon" */;
+			buildPhases = (
+				7B86FD879DFCBA1C310831E1 /* Sources */,
+				75AD3C4E7E14CF47B8742C2A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WTFDaemon;
+			packageProductDependencies = (
+				CC65FD45F3FF7453CD338E9F /* WTFCore */,
+			);
+			productName = WTFDaemon;
+			productReference = DD13034E4D565D9F65C5FF4F /* WTFDaemon */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FF79D671A655EC0304F77857 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = B65963D203405E2C2B721E30 /* Build configuration list for PBXProject "WhatTheFork" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C4C24050C3763297EF77C5B4;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AC3F8DBBD924931ABB587BF2 /* XCLocalSwiftPackageReference "WTFCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 0D054AE7B6F1CBC4F9E8886E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7536F6ABCECFA5787CFA3DB3 /* WTFDaemon */,
+				1F1BE81A5FE6072AFEC0A920 /* WhatTheFork */,
+				4859F32ABD8ED837F902973D /* wtf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		110C24FB70AB11B5A456B3EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3F64258D51112EF8A63A705 /* AppLauncher.swift in Sources */,
+				6FE59C8A06235B80F8967D22 /* BuildRunner.swift in Sources */,
+				F47525081FDEB76A7835FE2A /* DaemonLauncher.swift in Sources */,
+				2F55349EEB5CD5E5ACAACB92 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB53535C4D75E1DEA70B856 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B494839067261C2669CFF3A7 /* AnalysisPanel.swift in Sources */,
+				57A63DA6FC9018FA2AF89F1C /* BuildSession.swift in Sources */,
+				DB554754D462DFF05052BCAD /* ConcurrencyChartView.swift in Sources */,
+				A03568033841AAEB67A5E356 /* ContentView.swift in Sources */,
+				39158B4A845554BBE6B26136 /* MinimapView.swift in Sources */,
+				A1B2C3D4E5F67890A1B2C3D4 /* MinimapThumbnailView.swift in Sources */,
+				1FAF58920DE4577080CBDF6E /* NamedSession.swift in Sources */,
+				A6910F0CAF6CAA83D8982EF8 /* ProcessBoxView.swift in Sources */,
+				9B9DAA776CC54BF2657B6E57 /* ProcessClassifier.swift in Sources */,
+				DE97E0842537DBA72BD9315A /* ProcessDetailPanel.swift in Sources */,
+				22F5292579AD51AB6089AA5E /* SessionManager.swift in Sources */,
+				B70ECE5D2CA34EBE86485604 /* StoredSession.swift in Sources */,
+				3DC719F906604BFAB3AF2AF2 /* SessionStore.swift in Sources */,
+				DE0DF169D37F9CC1E15AC6CA /* TimelineExporter.swift in Sources */,
+				0BD979828F93D807DAAAF51C /* TimelineView.swift in Sources */,
+				1DD9FC012D5F299BCD082F66 /* WhatTheForkApp.swift in Sources */,
+				06DB1CA85C59CB4BA86876F0 /* XPCEventClient.swift in Sources */,
+				1E7679C36F2CB0EF09F43B97 /* ZoomControlsOverlay.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7B86FD879DFCBA1C310831E1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2993EB7276DC621055127478 /* ESFClient.swift in Sources */,
+				F73732E36C832EB4AE89B27A /* WTFXPCProtocol.swift in Sources */,
+				29203861346F18BF8C43FE75 /* XPCEventServer.swift in Sources */,
+				C498FBCCA10DC7C5AB9C1092 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2110606D5A0F86D133B5B565 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = WTFDaemon/WTFDaemon.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.whatthefork.daemon;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		2823F2DD57F650EC1574546E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		556FD149132688214BE78A12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.whatthefork.cli;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		5CF355AF07EF8B12C08E0DDF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		5F18CAF73D117E06BB53BE52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = WTFDaemon/WTFDaemon.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.whatthefork.daemon;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		8AB8109869A69172AE38D8F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.whatthefork.cli;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		D0B7627BF44308C15BCAFB1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WTFApp/WhatTheFork.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = WTFApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.whatthefork.app;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		ED1C83F842383E348F1A99C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WTFApp/WhatTheFork.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = WTFApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.whatthefork.app;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		40BF5AC8707C1ED2068E3FF1 /* Build configuration list for PBXNativeTarget "WTFDaemon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2110606D5A0F86D133B5B565 /* Debug */,
+				5F18CAF73D117E06BB53BE52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7D58787830E4CDBA0949BD6F /* Build configuration list for PBXNativeTarget "wtf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8AB8109869A69172AE38D8F5 /* Debug */,
+				556FD149132688214BE78A12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B65963D203405E2C2B721E30 /* Build configuration list for PBXProject "WhatTheFork" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2823F2DD57F650EC1574546E /* Debug */,
+				5CF355AF07EF8B12C08E0DDF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FADE173DA703BCDB06029849 /* Build configuration list for PBXNativeTarget "WhatTheFork" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED1C83F842383E348F1A99C6 /* Debug */,
+				D0B7627BF44308C15BCAFB1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		AC3F8DBBD924931ABB587BF2 /* XCLocalSwiftPackageReference "WTFCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = WTFCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CC65FD45F3FF7453CD338E9F /* WTFCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WTFCore;
+		};
+		D8A891296E4B921A72EC03A9 /* WTFCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WTFCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = FF79D671A655EC0304F77857 /* Project object */;
+}
