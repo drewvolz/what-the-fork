@@ -4,6 +4,8 @@ A macOS-native tool that visualizes your build process as an interactive timelin
 
 Named after the `fork()` syscall.
 
+![Build timeline visualization](docs/images/cargo_build_ccc_server_next.png)
+
 ## Usage
 
 ```bash
@@ -22,12 +24,13 @@ Launches the app, which updates live as your build runs.
 ## Building
 
 Requirements:
+
 - macOS 13+
 - Xcode 15+
 - [xcodegen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen`
 
 ```bash
-git clone https://github.com/you/what-the-fork
+git clone https://github.com/drewvolz/what-the-fork
 cd what-the-fork
 xcodegen generate
 xcodebuild -project WhatTheFork.xcodeproj -scheme wtf -derivedDataPath build/DerivedData build
@@ -44,6 +47,7 @@ sudo bash scripts/install-daemon.sh
 This installs to `/Library/Application Support/WhatTheFork/` and registers `/Library/LaunchDaemons/com.whatthefork.daemon.plist`. The daemon starts **on demand** when `wtf` runs.
 
 To uninstall:
+
 ```bash
 sudo launchctl bootout system/com.whatthefork.daemon
 sudo rm /Library/LaunchDaemons/com.whatthefork.daemon.plist
@@ -55,10 +59,10 @@ sudo rm -rf "/Library/Application Support/WhatTheFork"
 ## Usage
 
 ```bash
-# Short-lived commands (finish on their own):
 wtf make
 wtf cargo build
-wtf xcodebuild -scheme MyApp build
+wtf copilot
+wtf xcodebuild -project WhatTheFork.xcodeproj -scheme wtf -derivedDataPath build/DerivedData build
 
 # GUI apps or long-running processes (press Ctrl+C to stop capturing):
 wtf /path/to/MyApp.app/Contents/MacOS/MyApp
@@ -78,7 +82,3 @@ cd WTFCore && swift test
 - `WTFDaemon/` — Privileged helper: ESF subscription, XPC event server
 - `WTFApp/` — SwiftUI app: timeline visualization, analysis panels
 - `wtf/` — CLI tool: launches builds, connects daemon and app
-
-## License
-
-MIT
