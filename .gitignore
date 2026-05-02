@@ -1,1 +1,4 @@
 .worktrees/
+*.xcuserstate
+xcuserdata/
+DerivedData/

@@ -1,0 +1,12 @@
+[
+  {"type":"exec","pid":1000,"ppid":999,"timestamp":0.0,"command":"/usr/bin/cargo","args":["build"],"cwd":"/proj","exit_code":null},
+  {"type":"fork","pid":1001,"ppid":1000,"timestamp":0.1,"command":"/usr/bin/rustc","args":["--crate-name","lib","src/lib.rs"],"cwd":"/proj","exit_code":null},
+  {"type":"fork","pid":1002,"ppid":1000,"timestamp":0.1,"command":"/usr/bin/rustc","args":["--crate-name","dep","dep/src/lib.rs"],"cwd":"/proj","exit_code":null},
+  {"type":"exit","pid":1002,"ppid":1000,"timestamp":2.5,"command":"/usr/bin/rustc","args":[],"cwd":"/proj","exit_code":0},
+  {"type":"fork","pid":1003,"ppid":1000,"timestamp":2.5,"command":"/usr/bin/rustc","args":["--crate-name","main","src/main.rs"],"cwd":"/proj","exit_code":null},
+  {"type":"exit","pid":1001,"ppid":1000,"timestamp":3.0,"command":"/usr/bin/rustc","args":[],"cwd":"/proj","exit_code":0},
+  {"type":"exit","pid":1003,"ppid":1000,"timestamp":4.2,"command":"/usr/bin/rustc","args":[],"cwd":"/proj","exit_code":0},
+  {"type":"fork","pid":1004,"ppid":1000,"timestamp":4.2,"command":"/usr/bin/ld","args":["-o","target/debug/proj"],"cwd":"/proj","exit_code":null},
+  {"type":"exit","pid":1004,"ppid":1000,"timestamp":4.8,"command":"/usr/bin/ld","args":[],"cwd":"/proj","exit_code":0},
+  {"type":"exit","pid":1000,"ppid":999,"timestamp":5.0,"command":"/usr/bin/cargo","args":[],"cwd":"/proj","exit_code":0}
+]
