@@ -75,7 +75,9 @@ private struct ExportableTimelineView: View {
     var body: some View {
         let rows = flatRows
         ZStack(alignment: .topLeading) {
-            Color(nsColor: .controlBackgroundColor)
+            // Use an explicit light background — semantic NSColor values like
+            // .controlBackgroundColor may not resolve in ImageRenderer's windowless context.
+            Color(white: 0.96)
 
             TimeRulerView(totalDuration: timeline.totalDuration, pixelsPerSecond: pixelsPerSecond)
 
