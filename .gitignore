@@ -8,4 +8,5 @@ WTFCore/.build/
 *.DS_Store
 WTFApp/Info.plist
 WhatTheFork.xcodeproj/
-.swiftpm/
+.swiftpm/.superpowers/
+.superpowers/
