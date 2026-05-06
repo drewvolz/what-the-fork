@@ -7,6 +7,7 @@ import WTFCore
 final class NamedSession: ObservableObject, Identifiable {
     let id = UUID()
     @Published var label: String = "New Session"
+    var isRestored: Bool = false
     let session: BuildSession
 
     private var cancellable: AnyCancellable?

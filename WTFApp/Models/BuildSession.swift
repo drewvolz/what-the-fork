@@ -54,6 +54,12 @@ final class BuildSession: ObservableObject {
         liveTimeline = Timeline(rootNode: root, startTime: root.startTime, totalDuration: duration)
     }
 
+    func restore(events: [ProcessEvent], rootPID: Int) {
+        liveEvents = events
+        self.rootPID = rootPID
+        finalize()
+    }
+
     private func finalize() {
         liveTimer?.cancel()
         liveTimer = nil
