@@ -22,7 +22,14 @@ struct TimelineView: View {
     @State private var pinchStartPPS: Double = 100.0  // overwritten at gesture start; initial value is irrelevant
     @State private var isPinching: Bool = false
     @State private var pinchCenterTime: TimeInterval = 0
-    @State private var tooltipNodeID: Int? = nil
+    @State private var tooltipMeta: TooltipMeta? = nil
+
+    private struct TooltipMeta {
+        let node: ProcessNode
+        let startOffset: TimeInterval
+        let waitTime: TimeInterval
+        let onCriticalPath: Bool
+    }
     private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
 
@@ -31,6 +38,37 @@ struct TimelineView: View {
             scrollContent
                 .onAppear { visibleSize = geo.size }
                 .onChange(of: geo.size) { visibleSize = $0 }
+        }
+        .overlayPreferenceValue(TooltipAnchorKey.self) { anchor in
+            if let anchor, let meta = tooltipMeta {
+                GeometryReader { geo in
+                    let nodeRect = geo[anchor]
+                    let cardWidth: CGFloat = 220
+                    let cardHeight: CGFloat = 160
+                    let margin: CGFloat = 8
+                    // Prefer above node; clamp to keep card on screen.
+                    let rawX = nodeRect.midX - cardWidth / 2
+                    let rawY = nodeRect.minY - cardHeight - margin
+                    let clampedX = min(max(rawX, margin), geo.size.width - cardWidth - margin)
+                    let clampedY = max(rawY, margin)
+                    NodeTooltipCard(
+                        node: meta.node,
+                        startTimeOffset: meta.startOffset,
+                        waitTime: meta.waitTime,
+                        isOnCriticalPath: meta.onCriticalPath,
+                        onDismiss: { tooltipMeta = nil }
+                    )
+                    .fixedSize()
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+                    )
+                    .shadow(color: .black.opacity(0.18), radius: 8, y: -2)
+                    .position(x: clampedX + cardWidth / 2, y: clampedY + cardHeight / 2)
+                }
+                .allowsHitTesting(true)
+            }
         }
         if #available(macOS 14.0, *) {
             content.gesture(
@@ -173,8 +211,19 @@ struct TimelineView: View {
                             startTimeOffset: max(0, node.startTime - timeline.startTime),
                             waitTime: waitT,
                             isTooltipVisible: Binding(
-                                get: { tooltipNodeID == node.id },
-                                set: { tooltipNodeID = $0 ? node.id : nil }
+                                get: { tooltipMeta?.node.id == node.id },
+                                set: { show in
+                                    if show {
+                                        tooltipMeta = TooltipMeta(
+                                            node: node,
+                                            startOffset: max(0, node.startTime - timeline.startTime),
+                                            waitTime: waitT,
+                                            onCriticalPath: criticalPathIDs.contains(node.id)
+                                        )
+                                    } else {
+                                        tooltipMeta = nil
+                                    }
+                                }
                             ),
                             onSelect: { selectedNode = node }
                         )
@@ -185,8 +234,7 @@ struct TimelineView: View {
 
                 gapAndRow(node.children, depth: depth + 1, parentEndTime: node.endTime ?? node.startTime)
             }
-            // Lift the selected or tooltip-open node above siblings so the card renders on top.
-            .zIndex(selectedNode?.id == node.id || tooltipNodeID == node.id ? 100 : 0)
+            .zIndex(selectedNode?.id == node.id ? 100 : 0)
         )
     }
 

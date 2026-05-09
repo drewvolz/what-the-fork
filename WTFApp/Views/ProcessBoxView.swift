@@ -2,6 +2,91 @@
 import SwiftUI
 import WTFCore
 
+// MARK: - Tooltip preference key
+
+struct TooltipAnchorKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>? = nil
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
+}
+
+// MARK: - Tooltip card
+
+/// Floating detail card shown above a node when the user taps it.
+struct NodeTooltipCard: View {
+    let node: ProcessNode
+    let startTimeOffset: TimeInterval
+    let waitTime: TimeInterval
+    let isOnCriticalPath: Bool
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(node.displayName)
+                    .font(.system(size: 12, weight: .semibold))
+                Spacer()
+                Button {
+                    onDismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+                .help("Close")
+            }
+            .padding(.bottom, 6)
+
+            Divider()
+                .padding(.bottom, 6)
+
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 4) {
+                GridRow {
+                    Text("Duration").foregroundStyle(.secondary)
+                    Text(formattedDuration).fontWeight(.medium)
+                }
+                GridRow {
+                    Text("Started at").foregroundStyle(.secondary)
+                    Text(formatInterval(startTimeOffset))
+                }
+                GridRow {
+                    Text("Category").foregroundStyle(.secondary)
+                    Text(ProcessClassifier.classify(node).label)
+                }
+                if waitTime > 0.001 {
+                    GridRow {
+                        Text("Waited").foregroundStyle(.secondary)
+                        Text(formatInterval(waitTime))
+                            .foregroundStyle(.orange)
+                    }
+                }
+                if isOnCriticalPath {
+                    GridRow {
+                        Text("Critical path").foregroundStyle(.secondary)
+                        Label("Yes", systemImage: "star.fill")
+                            .foregroundStyle(.yellow)
+                    }
+                }
+            }
+            .font(.system(size: 11))
+        }
+        .padding(10)
+        .frame(minWidth: 180)
+    }
+
+    private var formattedDuration: String {
+        guard let dur = node.duration else { return "…" }
+        return dur >= 1 ? String(format: "%.2fs", dur) : String(format: "%.0fms", dur * 1000)
+    }
+
+    private func formatInterval(_ t: TimeInterval) -> String {
+        t >= 1 ? String(format: "%.2fs", t) : String(format: "%.0fms", t * 1000)
+    }
+}
+
+// MARK: - Process box
+
 /// A single colored box representing a process in the timeline.
 struct ProcessBoxView: View {
     let node: ProcessNode
@@ -64,77 +149,11 @@ struct ProcessBoxView: View {
                 .allowsHitTesting(false)
         }
         .frame(width: width, height: 32)
-        // Rendered as an overlay inside the ScrollView so it scrolls with the node.
-        // A popover (NSPanel) would stay fixed on screen while content scrolls away.
-        .overlay(alignment: .top) {
-            if isTooltipVisible {
-                tooltipView
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
-                    )
-                    .shadow(color: .black.opacity(0.18), radius: 8, y: -2)
-                    .fixedSize()
-                    .alignmentGuide(.top) { d in d[.bottom] + 8 }
-            }
+        // Report this box's frame when the tooltip is active so TimelineView can
+        // render the card outside the scroll view (avoiding z-order and clip issues).
+        .anchorPreference(key: TooltipAnchorKey.self, value: .bounds) {
+            isTooltipVisible ? $0 : nil
         }
-    }
-
-    // MARK: - Tooltip
-
-    private var tooltipView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(node.displayName)
-                    .font(.system(size: 12, weight: .semibold))
-                Spacer()
-                Button {
-                    isTooltipVisible = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.borderless)
-                .help("Close")
-            }
-            .padding(.bottom, 6)
-
-            Divider()
-                .padding(.bottom, 6)
-
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 4) {
-                GridRow {
-                    Text("Duration").foregroundStyle(.secondary)
-                    Text(formattedDuration).fontWeight(.medium)
-                }
-                GridRow {
-                    Text("Started at").foregroundStyle(.secondary)
-                    Text(formatInterval(startTimeOffset))
-                }
-                GridRow {
-                    Text("Category").foregroundStyle(.secondary)
-                    Text(ProcessClassifier.classify(node).label)
-                }
-                if waitTime > 0.001 {
-                    GridRow {
-                        Text("Waited").foregroundStyle(.secondary)
-                        Text(formatInterval(waitTime))
-                            .foregroundStyle(.orange)
-                    }
-                }
-                if isOnCriticalPath {
-                    GridRow {
-                        Text("Critical path").foregroundStyle(.secondary)
-                        Label("Yes", systemImage: "star.fill")
-                            .foregroundStyle(.yellow)
-                    }
-                }
-            }
-            .font(.system(size: 11))
-        }
-        .padding(10)
-        .frame(minWidth: 180)
     }
 
     // MARK: - Helpers
@@ -147,9 +166,5 @@ struct ProcessBoxView: View {
     private var formattedDuration: String {
         guard let dur = node.duration else { return "…" }
         return dur >= 1 ? String(format: "%.2fs", dur) : String(format: "%.0fms", dur * 1000)
-    }
-
-    private func formatInterval(_ t: TimeInterval) -> String {
-        t >= 1 ? String(format: "%.2fs", t) : String(format: "%.0fms", t * 1000)
     }
 }
