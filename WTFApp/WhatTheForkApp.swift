@@ -1,10 +1,23 @@
+// WTFApp/WhatTheForkApp.swift
 import SwiftUI
+import AppKit
 
 @main
 struct WhatTheForkApp: App {
+    @StateObject private var store = SessionStore()
+    @StateObject private var launchQueue = SessionLaunchQueue()
+    @StateObject private var restoreQueue = RestoreQueue()
+
+    init() {
+        NSWindow.allowsAutomaticWindowTabbing = true
+    }
+
     var body: some Scene {
-        Window("What the Fork", id: "main") {
+        WindowGroup(id: "session") {
             ContentView()
+                .environmentObject(store)
+                .environmentObject(launchQueue)
+                .environmentObject(restoreQueue)
         }
     }
 }
