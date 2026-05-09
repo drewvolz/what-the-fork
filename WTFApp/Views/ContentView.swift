@@ -58,7 +58,6 @@ struct ContentView: View {
 
 struct SessionView: View {
     @ObservedObject var named: NamedSession
-    @EnvironmentObject var store: SessionStore
 
     @State private var selectedNode: ProcessNode?
     @State private var isExporting = false

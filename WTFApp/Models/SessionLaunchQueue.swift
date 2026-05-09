@@ -1,3 +1,4 @@
+// WTFApp/Models/SessionLaunchQueue.swift
 import Foundation
 
 /// One-shot queue that carries a pending CLI launch request to the next
