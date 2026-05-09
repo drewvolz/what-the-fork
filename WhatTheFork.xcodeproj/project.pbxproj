@@ -40,6 +40,7 @@
 		F73732E36C832EB4AE89B27A /* WTFXPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A849E3FCE3EC4AF84F2F5 /* WTFXPCProtocol.swift */; };
 		A8B9C0D1E2F3A4B5C6D7E8F9 /* SessionLaunchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D1E2F3A4B5C6D7E8F9A0 /* SessionLaunchQueue.swift */; };
 		C0D1E2F3A4B5C6D7E8F9A0B1 /* RestoreQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C6D7E8F9A0B1C2 /* RestoreQueue.swift */; };
+		2F5D9B29085C469C8FF4260A /* WindowTabbingConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57393763CE6B468A88725AFE /* WindowTabbingConfigurator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,6 +82,7 @@
 		FCCD55FCB75912E25216A3D4 /* wtf */ = {isa = PBXFileReference; includeInIndex = 0; path = wtf; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9C0D1E2F3A4B5C6D7E8F9A0 /* SessionLaunchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLaunchQueue.swift; sourceTree = "<group>"; };
 		D1E2F3A4B5C6D7E8F9A0B1C2 /* RestoreQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreQueue.swift; sourceTree = "<group>"; };
+		57393763CE6B468A88725AFE /* WindowTabbingConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowTabbingConfigurator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +164,7 @@
 			children = (
 				CB66E6544ED200172DEE0F98 /* ProcessClassifier.swift */,
 				EAFADFE621AC4D9163425B89 /* TimelineExporter.swift */,
+				57393763CE6B468A88725AFE /* WindowTabbingConfigurator.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -348,6 +351,7 @@
 				A8B9C0D1E2F3A4B5C6D7E8F9 /* SessionLaunchQueue.swift in Sources */,
 				DE0DF169D37F9CC1E15AC6CA /* TimelineExporter.swift in Sources */,
 				0BD979828F93D807DAAAF51C /* TimelineView.swift in Sources */,
+				2F5D9B29085C469C8FF4260A /* WindowTabbingConfigurator.swift in Sources */,
 				1DD9FC012D5F299BCD082F66 /* WhatTheForkApp.swift in Sources */,
 				06DB1CA85C59CB4BA86876F0 /* XPCEventClient.swift in Sources */,
 				1E7679C36F2CB0EF09F43B97 /* ZoomControlsOverlay.swift in Sources */,
