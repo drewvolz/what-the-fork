@@ -6,22 +6,37 @@ import WTFCore
 
 struct ContentView: View {
     @StateObject private var manager = SessionManager()
+    @EnvironmentObject var store: SessionStore
+    @EnvironmentObject var launchQueue: SessionLaunchQueue
+    @EnvironmentObject var restoreQueue: RestoreQueue
+    @Environment(\.openWindow) var openWindow
+
+    @State private var hasStarted = false
 
     var body: some View {
-        TabView(selection: $manager.selectedID) {
-            ForEach(manager.sessions) { named in
-                SessionView(named: named, store: manager.store, onClose: {
-                    manager.removeSession(id: named.id)
-                })
-                .tabItem {
-                    Label(named.label, systemImage: named.systemImageName)
+        SessionView(named: manager.named)
+            .background(WindowTabbingConfigurator())
+            .navigationTitle(manager.named.label)
+            .onAppear {
+                guard !hasStarted else { return }
+                hasStarted = true
+                manager.beginAutoSave(store: store)
+                if let req = launchQueue.pending {
+                    launchQueue.pending = nil
+                    manager.named.session.startCapture(
+                        sessionID: req.sessionID,
+                        rootPID: req.rootPID
+                    )
+                } else if let stored = restoreQueue.pending {
+                    restoreQueue.pending = nil
+                    manager.named.isRestored = true
+                    manager.named.session.restore(
+                        events: stored.events,
+                        rootPID: stored.rootPID
+                    )
                 }
-                .tag(named.id)
             }
-        }
-        .onOpenURL { url in
-            handleIncomingURL(url)
-        }
+            .onOpenURL { handleIncomingURL($0) }
     }
 
     private func handleIncomingURL(_ url: URL) {
@@ -34,7 +49,8 @@ struct ContentView: View {
             let rootPID = Int(pidStr)
         else { return }
 
-        manager.addSession(sessionID: sessionID, rootPID: rootPID)
+        launchQueue.pending = (sessionID: sessionID, rootPID: rootPID)
+        openWindow(id: "session")
     }
 }
 
@@ -42,8 +58,7 @@ struct ContentView: View {
 
 struct SessionView: View {
     @ObservedObject var named: NamedSession
-    let store: SessionStore
-    let onClose: () -> Void
+    @EnvironmentObject var store: SessionStore
 
     @State private var selectedNode: ProcessNode?
     @State private var isExporting = false
@@ -73,8 +88,13 @@ struct SessionView: View {
                 case .complete:
                     if let timeline = named.session.timeline {
                         VSplitView {
-                            TimelineView(timeline: timeline, selectedNode: $selectedNode, pixelsPerSecond: $pixelsPerSecond, criticalPathIDs: criticalPathIDs)
-                                .frame(minHeight: 200)
+                            TimelineView(
+                                timeline: timeline,
+                                selectedNode: $selectedNode,
+                                pixelsPerSecond: $pixelsPerSecond,
+                                criticalPathIDs: criticalPathIDs
+                            )
+                            .frame(minHeight: 200)
                             bottomPanel
                                 .frame(minHeight: 120, maxHeight: 300)
                         }
@@ -116,32 +136,27 @@ struct SessionView: View {
                 .disabled(isExporting)
                 .help("Export timeline as PNG")
             }
-            Button(action: onClose) {
-                Image(systemName: "xmark.circle")
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.borderless)
-            .help("Close this session")
         }
     }
 
     // MARK: Content states
 
     private var idleView: some View {
-        SessionHistoryView(store: store) { stored in
-            named.isRestored = true
-            named.session.restore(events: stored.events, rootPID: stored.rootPID)
-        }
+        SessionHistoryView()
     }
 
     private var capturingView: some View {
         ZStack {
             if let live = named.session.liveTimeline {
-                TimelineView(timeline: live, selectedNode: $selectedNode, pixelsPerSecond: $pixelsPerSecond)
-                    .transition(.opacity)
-                    .overlay(alignment: .top) {
-                        capturingBadge
-                    }
+                TimelineView(
+                    timeline: live,
+                    selectedNode: $selectedNode,
+                    pixelsPerSecond: $pixelsPerSecond
+                )
+                .transition(.opacity)
+                .overlay(alignment: .top) {
+                    capturingBadge
+                }
             } else {
                 VStack(spacing: 16) {
                     ProgressView()
@@ -223,13 +238,17 @@ struct SessionView: View {
             defer { isExporting = false }
             let exportPPS = pixelsPerSecond
             let cpIDs = criticalPathIDs
-            guard let svgData = TimelineExporter.render(timeline: timeline, pixelsPerSecond: exportPPS,
-                                                        criticalPathIDs: cpIDs) else { return }
+            guard let svgData = TimelineExporter.render(
+                timeline: timeline,
+                pixelsPerSecond: exportPPS,
+                criticalPathIDs: cpIDs
+            ) else { return }
 
             let panel = NSSavePanel()
             panel.allowedContentTypes = [UTType.svg]
             panel.nameFieldStringValue = "build-timeline.svg"
-            panel.directoryURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
+            panel.directoryURL = FileManager.default
+                .urls(for: .desktopDirectory, in: .userDomainMask).first
             panel.title = "Export Timeline"
             guard panel.runModal() == .OK, let url = panel.url else { return }
             try? svgData.write(to: url)
