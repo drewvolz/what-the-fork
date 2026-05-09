@@ -99,21 +99,15 @@ struct MinimapView: View {
         let totalContentWidth = CGFloat(timeline.totalDuration * pixelsPerSecond)
         guard totalContentWidth > 0 else { return }
 
-        // Horizontal position
+        // The timeline scrolls primarily horizontally, so the viewport rect spans full height
+        // and tracks only the horizontal position. This avoids a tiny indicator stuck at y=0
+        // when the content fits vertically (the common case).
         let viewportXFraction = scrollOffset.x / totalContentWidth
         let viewportWidthFraction = visibleSize.width / totalContentWidth
         let x = max(0, viewportXFraction * size.width)
-        let w = min(size.width - x, max(4, viewportWidthFraction * size.width))
+        let w = min(size.width - x, max(20, viewportWidthFraction * size.width))
 
-        // Vertical position — approximate total content height from row count
-        let rowPitch: CGFloat = 40   // rowHeight (36) + rowPadding (4)
-        let totalContentHeight = CGFloat(max(1, totalRows)) * rowPitch + 32  // ruler + padding
-        let viewportYFraction = scrollOffset.y / totalContentHeight
-        let viewportHeightFraction = visibleSize.height / totalContentHeight
-        let y = max(0, viewportYFraction * size.height)
-        let h = min(size.height - y, max(4, viewportHeightFraction * size.height))
-
-        let rect = CGRect(x: x, y: y, width: w, height: h)
+        let rect = CGRect(x: x, y: 0, width: w, height: size.height)
         context.fill(
             Path(roundedRect: rect, cornerRadius: 2),
             with: .color(.purple.opacity(0.15))
