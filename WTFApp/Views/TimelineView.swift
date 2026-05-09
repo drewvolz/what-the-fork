@@ -22,6 +22,7 @@ struct TimelineView: View {
     @State private var pinchStartPPS: Double = 100.0  // overwritten at gesture start; initial value is irrelevant
     @State private var isPinching: Bool = false
     @State private var pinchCenterTime: TimeInterval = 0
+    @State private var tooltipNodeID: Int? = nil
     private let rowHeight: CGFloat = 36
     private let rowPadding: CGFloat = 4
 
@@ -171,6 +172,10 @@ struct TimelineView: View {
                             isOnCriticalPath: criticalPathIDs.contains(node.id),
                             startTimeOffset: max(0, node.startTime - timeline.startTime),
                             waitTime: waitT,
+                            isTooltipVisible: Binding(
+                                get: { tooltipNodeID == node.id },
+                                set: { tooltipNodeID = $0 ? node.id : nil }
+                            ),
                             onSelect: { selectedNode = node }
                         )
                         Spacer()

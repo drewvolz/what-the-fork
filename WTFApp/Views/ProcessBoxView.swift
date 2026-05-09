@@ -14,12 +14,13 @@ struct ProcessBoxView: View {
     let waitTime: TimeInterval
     let onSelect: () -> Void
 
-    @State private var isShowingTooltip = false
+    @Binding var isTooltipVisible: Bool
 
     init(node: ProcessNode, pixelsPerSecond: Double, isSelected: Bool,
          isOnCriticalPath: Bool = false,
          startTimeOffset: TimeInterval = 0,
          waitTime: TimeInterval = 0,
+         isTooltipVisible: Binding<Bool> = .constant(false),
          onSelect: @escaping () -> Void) {
         self.node = node
         self.pixelsPerSecond = pixelsPerSecond
@@ -27,6 +28,7 @@ struct ProcessBoxView: View {
         self.isOnCriticalPath = isOnCriticalPath
         self.startTimeOffset = startTimeOffset
         self.waitTime = waitTime
+        self._isTooltipVisible = isTooltipVisible
         self.onSelect = onSelect
     }
 
@@ -48,7 +50,7 @@ struct ProcessBoxView: View {
                             lineWidth: 2
                         )
                 )
-                .onTapGesture { onSelect(); isShowingTooltip.toggle() }
+                .onTapGesture { onSelect(); isTooltipVisible.toggle() }
 
             // Label: always visible at natural width (never truncated).
             // Wide bars (≥40px): label starts inside bar in white, overflows right.
@@ -65,7 +67,7 @@ struct ProcessBoxView: View {
         // Rendered as an overlay inside the ScrollView so it scrolls with the node.
         // A popover (NSPanel) would stay fixed on screen while content scrolls away.
         .overlay(alignment: .top) {
-            if isShowingTooltip {
+            if isTooltipVisible {
                 tooltipView
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                     .overlay(
@@ -74,7 +76,6 @@ struct ProcessBoxView: View {
                     )
                     .shadow(color: .black.opacity(0.18), radius: 8, y: -2)
                     .fixedSize()
-                    // Shift the card upward so it sits above the node rather than overlapping it.
                     .alignmentGuide(.top) { d in d[.bottom] + 8 }
             }
         }
@@ -84,9 +85,20 @@ struct ProcessBoxView: View {
 
     private var tooltipView: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(node.displayName)
-                .font(.system(size: 12, weight: .semibold))
-                .padding(.bottom, 6)
+            HStack(alignment: .firstTextBaseline) {
+                Text(node.displayName)
+                    .font(.system(size: 12, weight: .semibold))
+                Spacer()
+                Button {
+                    isTooltipVisible = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+                .help("Close")
+            }
+            .padding(.bottom, 6)
 
             Divider()
                 .padding(.bottom, 6)
