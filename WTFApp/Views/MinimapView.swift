@@ -19,9 +19,10 @@ struct MinimapView: View {
     private let minimapHeight: CGFloat = 80
 
     var body: some View {
+        let allNodes = flattenedNodes()
         Canvas { context, size in
-            drawNodes(context: context, size: size)
-            drawViewport(context: context, size: size)
+            drawNodes(context: context, size: size, allNodes: allNodes)
+            drawViewport(context: context, size: size, totalRows: allNodes.count)
         }
         .frame(width: minimapWidth, height: minimapHeight)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
@@ -41,13 +42,16 @@ struct MinimapView: View {
 
     // MARK: - Drawing
 
-    private func drawNodes(context: GraphicsContext, size: CGSize) {
+    private func flattenedNodes() -> [(node: ProcessNode, row: Int)] {
+        var result: [(node: ProcessNode, row: Int)] = []
+        flattenNodes(timeline.rootNode, row: 0, into: &result)
+        return result
+    }
+
+    private func drawNodes(context: GraphicsContext, size: CGSize, allNodes: [(node: ProcessNode, row: Int)]) {
         let totalDuration = timeline.totalDuration
         guard totalDuration > 0 else { return }
 
-        // Collect all nodes with their flat row index for vertical positioning.
-        var allNodes: [(node: ProcessNode, row: Int)] = []
-        flattenNodes(timeline.rootNode, row: 0, into: &allNodes)
         let totalRows = max(1, allNodes.count)
 
         // First pass: fill all nodes.
@@ -90,26 +94,34 @@ struct MinimapView: View {
         }
     }
 
-    private func drawViewport(context: GraphicsContext, size: CGSize) {
+    private func drawViewport(context: GraphicsContext, size: CGSize, totalRows: Int) {
         guard pixelsPerSecond > 0, timeline.totalDuration > 0 else { return }
         let totalContentWidth = CGFloat(timeline.totalDuration * pixelsPerSecond)
         guard totalContentWidth > 0 else { return }
 
+        // Horizontal position
         let viewportXFraction = scrollOffset.x / totalContentWidth
         let viewportWidthFraction = visibleSize.width / totalContentWidth
-
         let x = max(0, viewportXFraction * size.width)
         let w = min(size.width - x, max(4, viewportWidthFraction * size.width))
 
-        let rect = CGRect(x: x, y: 0, width: w, height: size.height)
-        context.stroke(
-            Path(roundedRect: rect, cornerRadius: 2),
-            with: .color(.purple.opacity(0.8)),
-            lineWidth: 1.5
-        )
+        // Vertical position — approximate total content height from row count
+        let rowPitch: CGFloat = 40   // rowHeight (36) + rowPadding (4)
+        let totalContentHeight = CGFloat(max(1, totalRows)) * rowPitch + 32  // ruler + padding
+        let viewportYFraction = scrollOffset.y / totalContentHeight
+        let viewportHeightFraction = visibleSize.height / totalContentHeight
+        let y = max(0, viewportYFraction * size.height)
+        let h = min(size.height - y, max(4, viewportHeightFraction * size.height))
+
+        let rect = CGRect(x: x, y: y, width: w, height: h)
         context.fill(
             Path(roundedRect: rect, cornerRadius: 2),
-            with: .color(.purple.opacity(0.08))
+            with: .color(.purple.opacity(0.15))
+        )
+        context.stroke(
+            Path(roundedRect: rect, cornerRadius: 2),
+            with: .color(.purple.opacity(0.85)),
+            lineWidth: 2
         )
     }
 

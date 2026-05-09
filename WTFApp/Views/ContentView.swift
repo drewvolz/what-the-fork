@@ -4,39 +4,37 @@ import AppKit
 import UniformTypeIdentifiers
 import WTFCore
 
-struct ContentView: View {
+/// Single-window root view. Owns the session manager and renders a sidebar
+/// (session history) alongside a detail panel (the active session).
+struct RootView: View {
     @StateObject private var manager = SessionManager()
     @EnvironmentObject var store: SessionStore
-    @EnvironmentObject var launchQueue: SessionLaunchQueue
-    @EnvironmentObject var restoreQueue: RestoreQueue
-    @Environment(\.openWindow) var openWindow
-
+    @State private var pendingRestore: StoredSession? = nil
     @State private var hasStarted = false
 
     var body: some View {
-        SessionView(named: manager.named)
-            .background(WindowTabbingConfigurator())
-            .navigationTitle(manager.named.label)
-            .onAppear {
-                guard !hasStarted else { return }
-                hasStarted = true
-                manager.beginAutoSave(store: store)
-                if let req = launchQueue.pending {
-                    launchQueue.pending = nil
-                    manager.named.session.startCapture(
-                        sessionID: req.sessionID,
-                        rootPID: req.rootPID
-                    )
-                } else if let stored = restoreQueue.pending {
-                    restoreQueue.pending = nil
+        NavigationSplitView {
+            SessionHistoryView(onSelect: { pendingRestore = $0 })
+                .environmentObject(store)
+                .navigationSplitViewColumnWidth(min: 220, ideal: 280)
+        } detail: {
+            SessionView(named: manager.named)
+                .onChange(of: pendingRestore) { session in
+                    guard let session else { return }
+                    pendingRestore = nil
                     manager.named.isRestored = true
                     manager.named.session.restore(
-                        events: stored.events,
-                        rootPID: stored.rootPID
+                        events: session.events,
+                        rootPID: session.rootPID
                     )
                 }
-            }
-            .onOpenURL { handleIncomingURL($0) }
+        }
+        .onAppear {
+            guard !hasStarted else { return }
+            hasStarted = true
+            manager.beginAutoSave(store: store)
+        }
+        .onOpenURL { handleIncomingURL($0) }
     }
 
     private func handleIncomingURL(_ url: URL) {
@@ -49,8 +47,10 @@ struct ContentView: View {
             let rootPID = Int(pidStr)
         else { return }
 
-        launchQueue.pending = (sessionID: sessionID, rootPID: rootPID)
-        openWindow(id: "session")
+        manager.named.session.startCapture(
+            sessionID: sessionID,
+            rootPID: rootPID
+        )
     }
 }
 
@@ -141,7 +141,20 @@ struct SessionView: View {
     // MARK: Content states
 
     private var idleView: some View {
-        SessionHistoryView()
+        VStack(spacing: 12) {
+            Image(systemName: "timer.circle")
+                .font(.system(size: 48))
+                .foregroundStyle(.tertiary)
+            Text("No Session Active")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+            Text("Select a session from the sidebar, or run `wtf <command>` to capture a build.")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 280)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var capturingView: some View {

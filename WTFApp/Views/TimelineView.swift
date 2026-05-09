@@ -114,6 +114,9 @@ struct TimelineView: View {
                     // Invisible time anchors for programmatic scrolling (every 0.1s)
                     timeAnchors
                 }
+                // Trailing margin ensures nodes in the right portion of the viewport
+                // are never obscured by the minimap or zoom controls overlays.
+                .padding(.trailing, 200)
                 // Report scroll offset via preference key
                 .background(
                     GeometryReader { geo in

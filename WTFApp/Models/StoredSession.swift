@@ -3,7 +3,7 @@ import Foundation
 import WTFCore
 
 /// A completed build session persisted to disk.
-struct StoredSession: Codable, Identifiable {
+struct StoredSession: Codable, Identifiable, Equatable {
     let id: UUID
     let commandName: String
     let duration: TimeInterval

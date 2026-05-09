@@ -2,45 +2,41 @@
 import SwiftUI
 import WTFCore
 
-/// Replaces the idle screen. Shows all stored sessions as compact rows with
-/// minimap thumbnails. Empty state shown when no sessions exist.
+/// Sidebar list of stored sessions. Tapping a row calls `onSelect` so the
+/// caller can load the session into the detail panel without opening a new window.
 struct SessionHistoryView: View {
     @EnvironmentObject var store: SessionStore
-    @EnvironmentObject var restoreQueue: RestoreQueue
-    @Environment(\.openWindow) var openWindow
+    var onSelect: ((StoredSession) -> Void)? = nil
 
     var body: some View {
         if store.history.isEmpty {
             emptyState
         } else {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
+            List {
+                Section {
+                    ForEach(store.history) { session in
+                        SessionHistoryRow(
+                            session: session,
+                            onRestore: { onSelect?(session) },
+                            onDelete: { store.delete(id: session.id) }
+                        )
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8))
+                    }
+                } header: {
                     HStack {
                         Text("Recent Sessions")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
                         Spacer()
-                        Text("\(store.history.count) sessions")
+                        Text("\(store.history.count)")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 4)
-
-                    ForEach(store.history) { session in
-                        SessionHistoryRow(
-                            session: session,
-                            onRestore: {
-                                restoreQueue.pending = session
-                                openWindow(id: "session")
-                            },
-                            onDelete: { store.delete(id: session.id) }
-                        )
-                    }
                 }
-                .padding(12)
             }
+            .listStyle(.sidebar)
         }
     }
 
@@ -54,6 +50,7 @@ struct SessionHistoryView: View {
             Text("Run `wtf <command>` to capture your first build")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
