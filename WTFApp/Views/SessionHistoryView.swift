@@ -5,8 +5,9 @@ import WTFCore
 /// Replaces the idle screen. Shows all stored sessions as compact rows with
 /// minimap thumbnails. Empty state shown when no sessions exist.
 struct SessionHistoryView: View {
-    @ObservedObject var store: SessionStore
-    let onRestore: (StoredSession) -> Void
+    @EnvironmentObject var store: SessionStore
+    @EnvironmentObject var restoreQueue: RestoreQueue
+    @Environment(\.openWindow) var openWindow
 
     var body: some View {
         if store.history.isEmpty {
@@ -30,7 +31,10 @@ struct SessionHistoryView: View {
                     ForEach(store.history) { session in
                         SessionHistoryRow(
                             session: session,
-                            onRestore: { onRestore(session) },
+                            onRestore: {
+                                restoreQueue.pending = session
+                                openWindow(id: "session")
+                            },
                             onDelete: { store.delete(id: session.id) }
                         )
                     }
