@@ -38,6 +38,8 @@
 		F02F2E1C43A3026E09554B30 /* WTFCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8A891296E4B921A72EC03A9 /* WTFCore */; };
 		F47525081FDEB76A7835FE2A /* DaemonLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA2F7B0FFA69D0F0FAA484C /* DaemonLauncher.swift */; };
 		F73732E36C832EB4AE89B27A /* WTFXPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078A849E3FCE3EC4AF84F2F5 /* WTFXPCProtocol.swift */; };
+		A8B9C0D1E2F3A4B5C6D7E8F9 /* SessionLaunchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D1E2F3A4B5C6D7E8F9A0 /* SessionLaunchQueue.swift */; };
+		C0D1E2F3A4B5C6D7E8F9A0B1 /* RestoreQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C6D7E8F9A0B1C2 /* RestoreQueue.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,6 +79,8 @@
 		EAFADFE621AC4D9163425B89 /* TimelineExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineExporter.swift; sourceTree = "<group>"; };
 		F777CDF87F1E41E64B3F73D3 /* ConcurrencyChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrencyChartView.swift; sourceTree = "<group>"; };
 		FCCD55FCB75912E25216A3D4 /* wtf */ = {isa = PBXFileReference; includeInIndex = 0; path = wtf; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9C0D1E2F3A4B5C6D7E8F9A0 /* SessionLaunchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLaunchQueue.swift; sourceTree = "<group>"; };
+		D1E2F3A4B5C6D7E8F9A0B1C2 /* RestoreQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreQueue.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +203,8 @@
 				DC7D227113164627A470DF8A /* StoredSession.swift */,
 				DFD4B134F1114CDC9D4B1889 /* SessionStore.swift */,
 				B360B399023E8493D9E20C7D /* XPCEventClient.swift */,
+				B9C0D1E2F3A4B5C6D7E8F9A0 /* SessionLaunchQueue.swift */,
+				D1E2F3A4B5C6D7E8F9A0B1C2 /* RestoreQueue.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -336,8 +342,10 @@
 				9B9DAA776CC54BF2657B6E57 /* ProcessClassifier.swift in Sources */,
 				DE97E0842537DBA72BD9315A /* ProcessDetailPanel.swift in Sources */,
 				22F5292579AD51AB6089AA5E /* SessionManager.swift in Sources */,
+				C0D1E2F3A4B5C6D7E8F9A0B1 /* RestoreQueue.swift in Sources */,
 				B70ECE5D2CA34EBE86485604 /* StoredSession.swift in Sources */,
 				3DC719F906604BFAB3AF2AF2 /* SessionStore.swift in Sources */,
+				A8B9C0D1E2F3A4B5C6D7E8F9 /* SessionLaunchQueue.swift in Sources */,
 				DE0DF169D37F9CC1E15AC6CA /* TimelineExporter.swift in Sources */,
 				0BD979828F93D807DAAAF51C /* TimelineView.swift in Sources */,
 				1DD9FC012D5F299BCD082F66 /* WhatTheForkApp.swift in Sources */,
